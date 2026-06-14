@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>조르의 과학 실험실 — 용해와 용액 탐구</title>
+    <style>
+        /* CSS Reset 및 변수 선언 */
+        :root {
+            --bg-start: #05071a;
+            --bg-end: #0d1442;
+            --chat-bg: rgba(10, 10, 26, 0.95);
+            --cyan: #00e5ff;
+            --cyan-glow: rgba(0, 229, 255, 0.5);
+            --text-white: #ffffff;
+            --text-gray: #a0a0b0;
+            --green: #22c55e;
+            --red: #ef4444;
+            --card-bg: #1e2a4a;
+            --btn-bg: #1a1a2e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end)); 
+            color: var(--text-white);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            touch-action: none; 
+        }
+        
+        /* Layout */
+        #app-container { display: flex; flex-direction: column; height: 100%; position: relative; }
+        
+        /* 토스트 알림 */
+        #toast-container { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--cyan); color: #000; padding: 12px 30px; border-radius: 20px; font-weight: bold; font-size: 16px; z-index: 1000; transition: top 0.4s ease-in-out; box-shadow: 0 5px 15px rgba(0, 229, 255, 0.5); text-align: center; }
+        #toast-container.show { top: 20px; }
+        #toast-container.error { background: var(--red); color: #fff; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5); }
+        #toast-container.success { background: var(--green); color: #fff; box-shadow: 0 5px 15px rgba(34, 197, 94, 0.5); }
+        
+        /* Header */
+        header { display: flex; justify-content: space-between; padding: 15px 20px; z-index: 10; }
+        .stage-info-box { background: #000; padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--cyan); }
+        .stage-title { font-weight: bold; font-size: 1.1rem; }
+        .student-name { color: var(--text-gray); font-size: 0.9rem; margin-top: 5px; }
+        .header-btns button { 
+            background: var(--btn-bg); color: var(--text-white); 
+            border: 1px solid var(--cyan); padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-left: 10px;
+        }
+        .header-btns button:hover { background: rgba(0, 229, 255, 0.1); }
+
+        /* Scene Area 60% */
+        #scene-area { flex: 7; display: flex; position: relative; padding: 20px; overflow: hidden; }
+        .character-container { width: 30%; display: flex; align-items: center; justify-content: center; }
+        
+        /* 조르 캐릭터 SVG & 애니메이션 */
+        .zor-svg { width: 150px; height: 180px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-12px); } 
+        }
+        @keyframes talk { 
+            0%, 100% { transform: translateY(0) rotate(0deg); } 
+            25% { transform: translateY(-4px) rotate(-3deg); } 
+            75% { transform: translateY(-4px) rotate(3deg); } 
+        }
+        .talking { animation: talk 0.3s infinite !important; }
+        
+        /* Scene Content */
+        .scene-content { width: 70%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        
+        /* Step Navigator */
+        .step-navigator { position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 20px; z-index: 10; width: 300px; justify-content: space-between;}
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; z-index: 2; transition: 0.3s; }
+        .step-circle.completed { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan-glow); }
+        .step-circle.current { border: 2px solid #fff; background: var(--bg-start); }
+        .step-circle.pending { background: #4a4a6a; color: #888; }
+        .step-line { position: absolute; top: 15px; left: 15px; right: 15px; height: 2px; background: #4a4a6a; z-index: 1; }
+
+        /* 대화창 (Chat Area 30%) */
+        #chat-area { flex: 3; background: var(--chat-bg); border-top: 2px solid var(--cyan); padding: 15px 20px; display: flex; flex-direction: column; position: relative; z-index: 10; }
+        .chat-header { display: flex; align-items: center; margin-bottom: 15px; font-weight: bold; font-size: 1.1rem; }
+        .chat-header span.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); margin-right: 10px; box-shadow: 0 0 8px var(--cyan); }
+        .chat-text { font-size: 20px; line-height: 1.5; min-height: 60px; }
+        
+        /* 인터랙션 영역 (대화창 내부) */
+        #interaction-area { flex: 1; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; overflow: hidden; }
+        
+        /* 하단 컨트롤 바 */
+        #footer-controls { height: 60px; background: #000; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 20; }
+        #footer-controls button { background: var(--btn-bg); color: var(--text-white); border: 1px solid #4a4a6a; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        #footer-controls button.primary { background: var(--cyan); color: #000; border: none; font-weight: bold; box-shadow: 0 0 10px var(--cyan-glow); }
+        #footer-controls button:hover:not(:disabled) { transform: scale(1.05); }
+        #footer-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 모달 및 인트로 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 12px; text-align: center; border: 1px solid var(--cyan); min-width: 350px; max-width: 600px; max-height: 90vh; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-content h2 { margin-bottom: 20px; color: var(--cyan); }
+        .input-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 15px; font-size: 16px; font-weight: bold; }
+        .input-row input { flex: 1; margin-left: 10px; padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid var(--cyan); background: rgba(255,255,255,0.1); color: #fff; text-align: center; transition: 0.2s; }
+        .input-row input:focus { outline: none; background: rgba(255,255,255,0.2); }
+        
+        .modal-content button { background: var(--cyan); color: #000; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .modal-content button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 229, 255, 0.4); }
+        
+        /* 인트로 스크린 */
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #05071a url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="1.5" fill="white" opacity="0.3"/><circle cx="100" cy="80" r="1" fill="white" opacity="0.5"/><circle cx="150" cy="180" r="2" fill="white" opacity="0.4"/></svg>') repeat; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+        .intro-text-box { width: 80%; max-width: 600px; background: rgba(10, 10, 26, 0.8); border: 2px solid var(--cyan); border-radius: 10px; padding: 30px; font-size: 18px; line-height: 1.6; margin-top: 30px; min-height: 160px; text-align: left; box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+        
+        /* 에러 및 흔들림 애니메이션 */
+        .error-border { border-color: var(--red) !important; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        
+        /* 인라인 피드백 */
+        .inline-feedback { color: var(--text-white); font-size: 14px; padding: 8px 12px; border-radius: 6px; margin-top: 5px; animation: fadeIn 0.3s forwards; width: 100%; text-align: left; box-sizing: border-box; }
+        .inline-error { background: rgba(239, 68, 68, 0.2); border-left: 4px solid var(--red); }
+        .inline-success { background: rgba(34, 197, 94, 0.2); border-left: 4px solid var(--green); }
+
+        /* 옵션 버튼 (객관식, OX 등) */
+        .options-grid { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
+        .option-btn { flex: 1; min-width: 120px; background: rgba(255,255,255,0.1); border: 1px solid var(--text-gray); padding: 10px; border-radius: 8px; color: white; cursor: pointer; text-align: center; transition: 0.2s; font-size: 15px; }
+        .option-btn:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
+        .option-btn.selected { border-color: var(--cyan); background: rgba(0,229,255,0.15); box-shadow: inset 0 0 10px rgba(0,229,255,0.2); }
+        
+        /* 실험 과정 테이블 (인라인 피드백을 위해 구조 변경) */
+        .procedure-list { width: 100%; margin-top: 10px; font-size: 14px; background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden; display: flex; flex-direction: row; align-items: stretch; }
+        .proc-row { display: flex; flex-direction: column; flex: 1; border-right: 1px solid #4a4a6a; cursor: pointer; transition: 0.2s; text-align: center; justify-content: flex-start; }
+        .proc-row:last-child { border-right: none; }
+        .proc-row:hover { background: rgba(255,255,255,0.08); }
+        .proc-num { padding: 8px; width: 100%; font-weight: bold; background: rgba(0,0,0,0.2); border-bottom: 1px solid #4a4a6a; }
+        .proc-desc { padding: 8px; flex: 1; font-size: 13px; word-break: keep-all; }
+        .proc-feedback { display: none !important; }
+        .proc-row.correct .proc-desc, .proc-row.correct .proc-num { background: rgba(34, 197, 94, 0.1); }
+        .proc-row.wrong .proc-desc, .proc-row.wrong .proc-num { background: rgba(239, 68, 68, 0.1); }
+        
+        /* 비커 시각화 */
+        .beaker-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 10px; margin-top: 20px; min-height: 120px; flex-wrap: nowrap; }
+        .beaker { width: 70px; height: 100px; border: 3px solid rgba(255,255,255,0.7); border-top: none; border-radius: 0 0 10px 10px; position: relative; background: rgba(255,255,255,0.05); }
+        .beaker::before { content: ''; position: absolute; top: -5px; left: -10px; right: -10px; height: 5px; border-bottom: 3px solid rgba(255,255,255,0.7); }
+        .beaker-liquid { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0, 150, 255, 0.8), rgba(0, 200, 255, 0.4)); border-radius: 0 0 7px 7px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .beaker-label { position: absolute; bottom: -35px; width: 100%; text-align: center; font-size: 16px; white-space: nowrap; font-weight: bold; }
+        .beaker-value { position: absolute; top: -30px; width: 100%; text-align: center; font-size: 15px; color: var(--cyan); font-weight: bold; white-space: nowrap; text-shadow: 0 0 5px #000; }
+        
+        /* 슬라이더 */
+        .slider-container { width: 100%; max-width: 400px; margin: 10px auto; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--cyan); cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px var(--cyan); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #4a4a6a; border-radius: 3px; }
+        
+        /* 텍스트 영역 */
+        textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid var(--cyan); color: white; padding: 15px; border-radius: 8px; resize: none; margin-top: 10px; font-size: 16px; line-height: 1.4; }
+        textarea:focus { outline: none; background: rgba(255,255,255,0.12); box-shadow: 0 0 8px var(--cyan-glow); }
+        
+        /* 드래그 앤 드롭 */
+        .dnd-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .card-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 60px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+        .dnd-card { background: var(--card-bg); border: 1px solid var(--cyan); padding: 10px 15px; border-radius: 6px; cursor: grab; user-select: none; z-index: 10; font-weight: bold; transition: transform 0.1s; position: relative; }
+        .dnd-card:active { cursor: grabbing; }
+        .dnd-card.dragging { opacity: 0.9; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: absolute; pointer-events: none; z-index: 100; }
+        .dropzones { display: flex; gap: 20px; width: 100%; }
+        .dropzone { flex: 1; border: 2px dashed rgba(0,229,255,0.4); border-radius: 8px; padding: 15px; height: 220px; overflow-y: auto; background: rgba(0,229,255,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.2s; }
+        .dropzone h3 { margin-bottom: 10px; font-size: 16px; color: var(--cyan); flex-shrink: 0; }
+        .dropzone.active { background: rgba(0,229,255,0.15); border-color: var(--cyan); border-style: solid; }
+        
+        /* 터치용 선택 액션 시트 (모바일용 인라인 대체 UI) */
+        .card-actions { position: absolute; top: 110%; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid var(--cyan); border-radius: 6px; display: flex; flex-direction: column; z-index: 50; display: none; width: 150px; overflow: hidden; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
+        .card-actions button { background: none; border: none; color: #fff; padding: 10px; width: 100%; text-align: left; cursor: pointer; border-bottom: 1px solid #333; }
+        .card-actions button:hover { background: rgba(0,229,255,0.2); }
+        .card-actions button:last-child { border-bottom: none; }
+        .dnd-card.show-actions .card-actions { display: flex; }
+
+        /* 유틸리티 */
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .slide-up { animation: slideUp 0.5s ease-out forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 교사용 데이터 테이블 */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: left; font-size: 14px; }
+        .data-table th, .data-table td { border: 1px solid #4a4a6a; padding: 10px; }
+        .data-table th { background: rgba(255,255,255,0.1); width: 30%; color: var(--cyan); }
+        .data-table tr:hover { background: rgba(255,255,255,0.05); }
+
+        .dynamic-input-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .dynamic-input-row input { padding: 8px; border-radius: 4px; border: 1px solid var(--cyan); background: rgba(0,0,0,0.5); color: #fff; text-align: center; width: 80px; }
+    </style>
+</head>
+<body>
+
+<!-- 토스트 컨테이너 -->
+<div id="toast-container">알림 내용</div>
+
+<!-- 인트로 화면 -->
+<div id="intro-screen" class="hidden">
+    <svg class="zor-svg" viewBox="0 0 150 180" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <radialGradient id="helmet-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(0, 229, 255, 0.1)" />
+                <stop offset="100%" stop-color="rgba(0, 100, 255, 0.3)" />
+            </radialGradient>
+        </defs>
+        <path d="M 40 120 C 20 180, 130 180, 110 120" fill="#a0aab5" stroke="#707a85" stroke-width="2" />
+        <ellipse cx="75" cy="70" rx="60" ry="55" fill="url(#helmet-glow)" />
+        <circle cx="75" cy="75" r="40" fill="#4ade80" />
+        <ellipse cx="60" cy="70" rx="9" ry="14" fill="#000" />
+        <ellipse cx="90" cy="70" rx="9" ry="14" fill="#000" />
+        <circle cx="62" cy="67" r="3" fill="#fff" />
+        <circle cx="92" cy="67" r="3" fill="#fff" />
+        <path id="zor-mouth" d="M 65 95 Q 75 100 85 95" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        <path d="M 75 35 L 75 15" stroke="#4ade80" stroke-width="4" stroke-linecap="round" />
+        <circle cx="75" cy="10" r="6" fill="#ef4444" />
+        <ellipse cx="75" cy="70" rx="60" ry="55" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3" />
+        <path d="M 30 50 Q 50 15 80 20" stroke="rgba(255,255,255,0.6)" stroke-width="5" fill="none" stroke-linecap="round" />
+    </svg>
+    <div class="intro-text-box" id="intro-text"></div>
+    <button id="intro-btn" class="hidden" style="margin-top:20px; background:var(--cyan); border:none; padding:12px 30px; border-radius:6px; font-weight:bold; cursor:pointer;">시작하기 →</button>
+</div>
+
+<!-- 시작 모달 -->
+<div id="start-modal" class="modal-overlay">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:25px; padding: 20px;">
+        <!-- 타이틀 영역 -->
+        <div style="text-align:center;">
+            <div style="background: linear-gradient(90deg, #8b5cf6, #0ea5e9); padding: 6px 20px; border-radius: 20px; display: inline-block; font-size: 15px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); color: white;">
+                🔬 5학년 과학 · 용해와 용액
+            </div>
+            <div style="font-size: 38px; font-weight: 900; color: #00e5ff; text-shadow: 0 0 15px rgba(0,229,255,0.6); margin-bottom: 8px;">
+                🛸 조르의 과학 실험실
+            </div>
+            <div style="font-size: 17px; color: #a0a0b0;">
+                외계인 조르의 실험을 검토하고 비판적 사고력을 키워요.
+            </div>
+        </div>
+        <!-- 입력 모달 -->
+        <div class="modal-content">
+            <h2>👽 탐구자 정보를 입력해주세요!</h2>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; align-items:center;">
+            <div class="input-row" style="justify-content:center; gap:15px;">
+                <span style="width:40px; text-align:right;">학년</span>
+                <input type="number" id="input-grade" min="1" max="6" placeholder="예: 5" style="flex:none; width:120px; margin:0;"> 
+                <span style="width:40px; text-align:left;">학년</span>
+            </div>
+            <div class="input-row" style="justify-content:center; gap:15px;">
+                <span style="width:40px; text-align:right;">반</span>
+                <input type="number" id="input-class" min="1" max="20" placeholder="예: 3" style="flex:none; width:120px; margin:0;"> 
+                <span style="width:40px; text-align:left;">반</span>
+            </div>
+            <div class="input-row" style="justify-content:center; gap:15px;">
+                <span style="width:40px; text-align:right;">이름</span>
+                <input type="text" id="input-name" maxlength="10" placeholder="이름 입력" style="flex:none; width:120px; margin:0;">
+                <span style="width:40px; text-align:left; opacity:0;">반</span>
+            </div>
+        </div>
+        <button id="start-btn" style="margin-top:20px;">탐구 시작! 🚀</button>
+    </div>
+    </div>
+</div>
+
+<!-- 교사용 모달 -->
+<div id="teacher-modal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 700px;">
+        <h2>📊 학생 응답 기록 (교사용)</h2>
+        <div id="teacher-data-container"></div>
+        <button id="close-teacher-btn" style="margin-top: 20px; background: #4a4a6a;">닫기</button>
+    </div>
+</div>
+
+<!-- 메인 앱 컨테이너 -->
+<div id="app-container" class="hidden">
+    <header>
+        <div class="stage-info-box">
+            <div class="stage-title" id="stage-title">스테이지 1: 준비 중...</div>
+            <div class="student-name" id="student-name-display">학생 이름</div>
+        </div>
+        <div class="header-btns">
+            <button id="fullscreen-btn">발표 📺</button>
+            <button id="teacher-btn">교사용 🔑</button>
+        </div>
+    </header>
+
+    <div id="scene-area">
+        <div class="character-container">
+            <svg class="zor-svg" viewBox="0 0 150 180" xmlns="http://www.w3.org/2000/svg">
+                <!-- 캐릭터 동일 복사 -->
+                <path d="M 40 120 C 20 180, 130 180, 110 120" fill="#a0aab5" stroke="#707a85" stroke-width="2" />
+                <ellipse cx="75" cy="70" rx="60" ry="55" fill="url(#helmet-glow)" />
+                <circle cx="75" cy="75" r="40" fill="#4ade80" />
+                <ellipse cx="60" cy="70" rx="9" ry="14" fill="#000" />
+                <ellipse cx="90" cy="70" rx="9" ry="14" fill="#000" />
+                <circle cx="62" cy="67" r="3" fill="#fff" />
+                <circle cx="92" cy="67" r="3" fill="#fff" />
+                <path id="zor-mouth" d="M 65 95 Q 75 100 85 95" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                <path d="M 75 35 L 75 15" stroke="#4ade80" stroke-width="4" stroke-linecap="round" />
+                <circle cx="75" cy="10" r="6" fill="#ef4444" />
+                <ellipse cx="75" cy="70" rx="60" ry="55" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3" />
+                <path d="M 30 50 Q 50 15 80 20" stroke="rgba(255,255,255,0.6)" stroke-width="5" fill="none" stroke-linecap="round" />
+            </svg>
+        </div>
+        <div class="scene-content">
+            <div class="step-navigator">
+                <div class="step-line"></div>
+                <div class="step-circle current" id="nav-step-1">1</div>
+                <div class="step-circle pending" id="nav-step-2">2</div>
+                <div class="step-circle pending" id="nav-step-3">3</div>
+                <div class="step-circle pending" id="nav-step-4">4</div>
+            </div>
+            <div id="scene-display" style="width: 100%; height: 100%; padding-top: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-area">
+        <div class="chat-header">
+            <span class="dot"></span> 조르
+        </div>
+        <div class="chat-text" id="chat-text">대화를 불러오는 중...</div>
+        <div id="interaction-area"></div>
+    </div>
+
+    <div id="footer-controls">
+        <button id="prev-btn">← 이전</button>
+        <button id="confirm-btn" class="primary hidden">✔ 확인하기</button>
+        <button id="next-btn" disabled>다음 기록 확인 ▶</button>
+    </div>
+</div>
+
+<script>
+    /* ==========================================
+       데이터 모델 및 상태 관리
+    ========================================== */
+    const STAGES = [
+        { id: 1, name: "스테이지 1: 조르의 이상한 실험", scenes: 3 },
+        { id: 2, name: "스테이지 2: 조르의 온도 실험", scenes: 3 },
+        { id: 3, name: "스테이지 3: 생활 속 용해 찾기", scenes: 2 },
+        { id: 4, name: "스테이지 4: 실험 설계하기", scenes: 5 },
+    ];
+    
+    let state = {
+        grade: "",
+        classNum: "",
+        studentName: "",
+        currentStageIdx: 0,
+        currentSceneIdx: 0,
+        isTyping: false,
+        data: {
+            step1_guess: "",
+            step2_ox: "",
+            step2_reason: "",
+            step3_1: "",
+            step4_1: [],
+            step4_2_correct: false,
+            step4_3_water: "",
+            step4_3_beakerCount: 0,
+            step4_3_sugars: [],
+            step4_4_ox: ""
+        }
+    };
+
+    /* ==========================================
+       DOM 요소 캐싱
+    ========================================== */
+    const els = {
+        introScreen: document.getElementById('intro-screen'),
+        introText: document.getElementById('intro-text'),
+        introBtn: document.getElementById('intro-btn'),
+        startModal: document.getElementById('start-modal'),
+        inputGrade: document.getElementById('input-grade'),
+        inputClass: document.getElementById('input-class'),
+        inputName: document.getElementById('input-name'),
+        startBtn: document.getElementById('start-btn'),
+        appContainer: document.getElementById('app-container'),
+        stageTitle: document.getElementById('stage-title'),
+        studentNameDisplay: document.getElementById('student-name-display'),
+        chatText: document.getElementById('chat-text'),
+        interactionArea: document.getElementById('interaction-area'),
+        sceneDisplay: document.getElementById('scene-display'),
+        prevBtn: document.getElementById('prev-btn'),
+        confirmBtn: document.getElementById('confirm-btn'),
+        nextBtn: document.getElementById('next-btn'),
+        fullscreenBtn: document.getElementById('fullscreen-btn'),
+        teacherBtn: document.getElementById('teacher-btn'),
+        teacherModal: document.getElementById('teacher-modal'),
+        closeTeacherBtn: document.getElementById('close-teacher-btn'),
+        teacherDataContainer: document.getElementById('teacher-data-container'),
+        toastContainer: document.getElementById('toast-container')
+    };
+
+    let typingTimeout;
+    let toastTimeout;
+
+    /* ==========================================
+       유틸리티 함수
+    ========================================== */
+    function showToast(msg, isError = false) {
+        els.toastContainer.innerText = msg;
+        els.toastContainer.className = isError ? 'error show' : 'success show';
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            els.toastContainer.classList.remove('show');
+        }, 2000);
+    }
+
+    function triggerShakeError(el) {
+        el.classList.remove('shake', 'error-border');
+        void el.offsetWidth; // trigger reflow
+        el.classList.add('shake', 'error-border');
+        setTimeout(() => el.classList.remove('shake'), 400);
+    }
+
+    function saveData() {
+        localStorage.setItem('jorLab_data', JSON.stringify(state.data));
+        localStorage.setItem('jorLab_name', state.studentName);
+        localStorage.setItem('jorLab_grade', state.grade);
+        localStorage.setItem('jorLab_class', state.classNum);
+        localStorage.setItem('jorLab_stage', state.currentStageIdx);
+        localStorage.setItem('jorLab_scene', state.currentSceneIdx);
+    }
+
+    function loadData() {
+        const d = localStorage.getItem('jorLab_data');
+        const n = localStorage.getItem('jorLab_name');
+        const g = localStorage.getItem('jorLab_grade');
+        const c = localStorage.getItem('jorLab_class');
+        if (d) state.data = JSON.parse(d);
+        if (n) state.studentName = n;
+        if (g) state.grade = g;
+        if (c) state.classNum = c;
+    }
+
+    function typeTextCustom(el, text, speed, onComplete) {
+        el.innerHTML = '';
+        let i = 0;
+        function typeNext() {
+            if (i < text.length) {
+                if(text.substring(i, i+4) === '<br>') {
+                    el.innerHTML += '<br>';
+                    i += 4;
+                } else {
+                    el.innerHTML += text.charAt(i);
+                    i++;
+                }
+                setTimeout(typeNext, speed);
+            } else {
+                if (onComplete) onComplete();
+            }
+        }
+        typeNext();
+    }
+
+    function typeText(text, onComplete) {
+        els.chatText.innerHTML = '';
+        state.isTyping = true;
+        
+        const zor = document.querySelector('.scene-content').previousElementSibling.querySelector('.zor-svg');
+        if(zor) zor.classList.add('talking');
+        
+        els.interactionArea.classList.add('hidden');
+        els.confirmBtn.classList.add('hidden');
+        
+        let i = 0;
+        clearTimeout(typingTimeout);
+        
+        function typeNext() {
+            if (i < text.length) {
+                if(text.substring(i, i+4) === '<br>') {
+                    els.chatText.innerHTML += '<br>';
+                    i += 4;
+                } else {
+                    els.chatText.innerHTML += text.charAt(i);
+                    i++;
+                }
+                typingTimeout = setTimeout(typeNext, 30);
+            } else {
+                state.isTyping = false;
+                if(zor) zor.classList.remove('talking');
+                els.interactionArea.classList.remove('hidden');
+                els.interactionArea.classList.add('slide-up');
+                if (onComplete) onComplete();
+            }
+        }
+        typeNext();
+    }
+
+    function updateNav() {
+        const stageNum = state.currentStageIdx + 1;
+        for(let i=1; i<=4; i++) {
+            const circle = document.getElementById(`nav-step-${i}`);
+            if(!circle) continue;
+            circle.className = 'step-circle';
+            if (i < stageNum) circle.classList.add('completed');
+            else if (i === stageNum) circle.classList.add('current');
+            else circle.classList.add('pending');
+        }
+        els.stageTitle.innerText = STAGES[state.currentStageIdx].name;
+    }
+
+    function createBeaker(label, valStr, levelPct, id='') {
+        return `
+            <div class="beaker" ${id ? `id="${id}"` : ''}>
+                <div class="beaker-value">${valStr}</div>
+                <div class="beaker-liquid" style="height: ${levelPct}%"></div>
+                <div class="beaker-label">${label}</div>
+            </div>
+        `;
+    }
+
+    /* ==========================================
+       화면 렌더링 라우터
+    ========================================== */
+    function renderCurrentScene() {
+        els.interactionArea.innerHTML = '';
+        els.sceneDisplay.innerHTML = '';
+        els.confirmBtn.classList.add('hidden');
+        els.confirmBtn.disabled = false;
+        els.nextBtn.disabled = true;
+        els.prevBtn.disabled = (state.currentStageIdx === 0 && state.currentSceneIdx === 0);
+        
+        updateNav();
+        saveData();
+
+        const s = state.currentStageIdx;
+        const c = state.currentSceneIdx;
+
+        if (s === 0) renderStage1(c);
+        else if (s === 1) renderStage2(c);
+        else if (s === 2) renderStage3(c);
+        else if (s === 3) renderStage4(c);
+    }
+
+    /* ==========================================
+       Stage 1: 용질의 종류 (인지적 갈등)
+    ========================================== */
+    function renderStage1(sceneIdx) {
+        if (sceneIdx === 0) {
+            els.sceneDisplay.innerHTML = `
+                <div class="beaker-container fade-in">
+                    ${createBeaker('설탕', '5숟가락', 30)}
+                    ${createBeaker('소금', '4숟가락', 30)}
+                    ${createBeaker('백반', '6숟가락 ⭐', 80)}
+                </div>
+            `;
+            const msg = "용질의 종류에 따라 얼마나 녹는지 알아보는 실험을 했어요.<br>한숟가락씩 넣다보니 설탕 5숟가락, 소금 4숟가락, 백반 6숟가락이 녹았어요.<br>백반이 제일 많이 녹았네요. 백반최고! 🎉";
+            typeText(msg, () => {
+                els.nextBtn.disabled = false;
+            });
+        } 
+        else if (sceneIdx === 1) {
+            els.sceneDisplay.innerHTML = `
+                <div class="procedure-list fade-in" id="s1-list">
+                    <div class="proc-row" data-idx="1">
+                        <div class="proc-num">①</div><div class="proc-desc">설탕 비커: 물 50mL 담기</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-idx="2">
+                        <div class="proc-num">②</div><div class="proc-desc">소금 비커: 물 50mL 담기</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-idx="3" data-wrong="true">
+                        <div class="proc-num">③</div><div class="proc-desc">백반 비커: 물 200mL 담기</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-idx="4">
+                        <div class="proc-num">④</div><div class="proc-desc">각 비커에 용질을 한 숟가락씩 넣으며 관찰</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-idx="5">
+                        <div class="proc-num">⑤</div><div class="proc-desc">더 이상 안 녹을 때까지 반복</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                </div>
+            `;
+            typeText("실험 과정에서 이상한 부분이 있는지 확인해주세요!<br>(눌러보세요)");
+            
+            const rows = document.querySelectorAll('#s1-list .proc-row');
+            rows.forEach(r => {
+                r.onclick = () => {
+                    if (r.dataset.wrong) {
+                        r.classList.add('wrong');
+                        showToast("백반만 200mL예요! 설탕·소금은 50mL인데 달라요!", true);
+                        els.confirmBtn.classList.remove('hidden');
+                        els.confirmBtn.onclick = () => {
+                            typeText("설탕·소금은 50mL인데 백반만 200mL였어요!<br>물이 4배나 많으니 당연히 더 많이 녹았던 거예요. 😅<br>물의 양을 같게 해야 공평한 비교가 돼요!", () => {
+                                els.confirmBtn.classList.add('hidden');
+                                els.nextBtn.disabled = false;
+                            });
+                        };
+                    } else {
+                        r.classList.add('correct');
+                        showToast("정상적인 절차예요!", false);
+                    }
+                };
+            });
+        } 
+        else if (sceneIdx === 2) {
+            els.interactionArea.innerHTML = `
+                <div class="options-grid">
+                    <button class="option-btn" data-val="설탕">🍬 설탕이 제일 많이 녹을 것 같다</button>
+                    <button class="option-btn" data-val="소금">🧂 소금이 제일 많이 녹을 것 같다</button>
+                    <button class="option-btn" data-val="백반">💎 백반이 제일 많이 녹을 것 같다</button>
+                </div>
+            `;
+            typeText("물의 양을 모두 50mL로 맞추면<br>결과가 어떻게 될까요? 먼저 예상해봐요!");
+            
+            const btns = els.interactionArea.querySelectorAll('.option-btn');
+            btns.forEach(b => b.onclick = () => {
+                btns.forEach(x => x.classList.remove('selected'));
+                b.classList.add('selected');
+                state.data.step1_guess = b.dataset.val;
+                
+                showToast(`'${b.dataset.val}'(을)를 선택했어요. 결과를 확인해볼까요?`, false);
+                
+                els.confirmBtn.classList.remove('hidden');
+                els.confirmBtn.innerText = "실험 결과 보기 🧪";
+                els.confirmBtn.onclick = () => {
+                    els.confirmBtn.classList.add('hidden');
+                    els.interactionArea.innerHTML = '';
+                    els.sceneDisplay.innerHTML = `
+                        <div class="beaker-container fade-in">
+                            ${createBeaker('설탕', '5숟가락 ⭐', 50)}
+                            ${createBeaker('소금', '4숟가락', 50)}
+                            ${createBeaker('백반', '1숟가락', 50)}
+                        </div>
+                    `;
+                    typeText("완전히 달라졌어요!<br>설탕이 제일 많이, 백반이 제일 적게 녹았어요.<br>용질의 종류에 따라 녹는 양이 달라요! 🔬", () => {
+                        els.nextBtn.disabled = false;
+                    });
+                };
+            });
+        }
+    }
+
+    /* ==========================================
+       Stage 2: 물의 온도 (인지적 갈등)
+    ========================================== */
+    function renderStage2(sceneIdx) {
+        if (sceneIdx === 0) {
+            els.sceneDisplay.innerHTML = `
+                <div class="beaker-container fade-in">
+                    ${createBeaker('❄️ 차가운 물 5℃', '3숟가락', 40)}
+                    ${createBeaker('🔥 따뜻한 물 70℃', '3숟가락', 40)}
+                </div>
+            `;
+            typeText("이번엔 물의 온도에 따라 백반이 얼마나 녹는지 알아보는 실험이에요!<br>차가운 물과 따뜻한 물에 백반을 한 숟가락씩 넣어가며 녹여봤어요.<br>그런데 두 비커 결과가 똑같이 3숟가락이었어요.<br>온도는 상관없는 것 같아요! 🤷", () => els.nextBtn.disabled = false);
+        }
+        else if (sceneIdx === 1) {
+            els.sceneDisplay.innerHTML = `
+                <div class="procedure-list fade-in" id="s2-list">
+                    <div class="proc-row">
+                        <div class="proc-num">①</div><div class="proc-desc">차가운 물 50mL, 따뜻한 물 50mL 준비</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-wrong="1">
+                        <div class="proc-num">②</div><div class="proc-desc">차가운 물 비커: 유리막대로 200번 젓기</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row" data-wrong="2">
+                        <div class="proc-num">③</div><div class="proc-desc">따뜻한 물 비커: 유리막대로 10번 젓기</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row">
+                        <div class="proc-num">④</div><div class="proc-desc">백반을 한 숟가락씩 넣으며 관찰</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                    <div class="proc-row">
+                        <div class="proc-num">⑤</div><div class="proc-desc">더 이상 안 녹으면 숟가락 수 기록</div>
+                        <div class="proc-feedback"></div>
+                    </div>
+                </div>
+            `;
+            typeText("실험 과정에 문제가 있나요?<br>잘못된 절차를 모두 찾아봐요!");
+            
+            let foundCount = 0;
+            const rows = document.querySelectorAll('#s2-list .proc-row');
+            rows.forEach(r => r.onclick = () => {
+                if(r.dataset.wrong) {
+                    if(!r.classList.contains('wrong')) foundCount++;
+                    r.classList.add('wrong');
+                    showToast("유리막대로 섞은 횟수가 달라요!", true);
+                    if(foundCount === 2) {
+                        setTimeout(() => showToast("모든 오류를 찾았어요!", false), 1500);
+                        els.confirmBtn.classList.remove('hidden');
+                        els.confirmBtn.innerText = "✔ 확인하기";
+                        els.confirmBtn.onclick = () => {
+                            typeText("젓는 횟수가 달랐으니까<br>온도 때문인지 젓기 때문인지 알 수가 없었어요! 😱", () => {
+                                els.confirmBtn.classList.add('hidden');
+                                els.nextBtn.disabled = false;
+                            });
+                        };
+                    }
+                } else {
+                    r.classList.add('correct');
+                    showToast("정상적인 절차예요!", false);
+                }
+            });
+        }
+        else if (sceneIdx === 2) {
+            els.sceneDisplay.innerHTML = `
+                <div style="text-align:center; width:100%;" class="fade-in">
+                    <div id="temp-display" style="font-size:20px; font-weight:bold; color:var(--cyan);">현재 온도: 20℃</div>
+                    <div class="slider-container">
+                        <input type="range" id="temp-slider" min="20" max="80" step="20" value="20">
+                    </div>
+                    <div class="beaker-container" style="margin-top:10px;">
+                        ${createBeaker('백반 용액', '1숟가락', 50, 'dyn-beaker-s2')}
+                    </div>
+                </div>
+            `;
+            
+            const slider = document.getElementById('temp-slider');
+            const dBeaker = document.getElementById('dyn-beaker-s2');
+            const bVal = dBeaker.querySelector('.beaker-value');
+            const bLiq = dBeaker.querySelector('.beaker-liquid');
+            
+            slider.oninput = (e) => {
+                const v = parseInt(e.target.value);
+                document.getElementById('temp-display').innerText = `현재 온도: ${v}℃`;
+                let sp = 1, g1 = 200, g2 = 150;
+                if(v==40) { sp=3; g1=150; g2=100; }
+                if(v==60) { sp=5; g1=100; g2=50; }
+                if(v==80) { sp=7; g1=50; g2=0; }
+                bVal.innerText = `${sp}숟가락`;
+                bLiq.style.background = `linear-gradient(to top, rgba(0, ${g2}, 255, 0.8), rgba(0, ${g1}, 255, 0.4))`;
+            };
+
+            els.interactionArea.innerHTML = `
+                <div class="options-grid" style="grid-template-columns: 1fr 1fr;">
+                    <button class="option-btn" style="text-align:center; font-size:24px; font-weight:bold;" data-val="O">O</button>
+                    <button class="option-btn" style="text-align:center; font-size:24px; font-weight:bold;" data-val="X">X</button>
+                </div>
+                <div id="s2-reason-box" class="hidden slide-up" style="width:100%;">
+                    <textarea id="s2-reason" rows="2" placeholder="✏️ 왜 그렇게 생각했나요? 내 생각을 자유롭게 써봐요..."></textarea>
+                </div>
+            `;
+            
+            typeText("젓는 방법도 같게 하면 온도가 높을수록 더 많이 녹아요!<br>막대를 움직여서 온도를 조절해보세요.<br>온도를 계속 올리면 무한정 녹일 수 있을까요?");
+            
+            const opts = els.interactionArea.querySelectorAll('.option-btn');
+            opts.forEach(b => b.onclick = () => {
+                opts.forEach(x=>x.classList.remove('selected'));
+                b.classList.add('selected');
+                state.data.step2_ox = b.dataset.val;
+                document.getElementById('s2-reason-box').classList.remove('hidden');
+                
+                els.confirmBtn.classList.remove('hidden');
+                els.confirmBtn.innerText = "제출하기";
+                els.confirmBtn.onclick = () => {
+                    const tArea = document.getElementById('s2-reason');
+                    const txt = tArea.value.trim();
+                    
+                    if(!txt) {
+                        triggerShakeError(tArea);
+                        showToast("이유를 꼭 써봐야 해요!", true);
+                        return;
+                    }
+                    state.data.step2_reason = txt;
+                    
+                    els.confirmBtn.classList.add('hidden');
+                    document.getElementById('s2-reason-box').classList.add('hidden');
+                    opts.forEach(x=>x.classList.add('hidden'));
+                    
+                    if(state.data.step2_ox === 'X') {
+                        showToast("정답!", false);
+                        typeText("맞아요! 우리는 20~80℃만 확인했어요.<br>확인하지 않은 건 단정 짓지 않는 것, 그게 비판적 사고예요! 🔍", () => els.nextBtn.disabled = false);
+                    } else {
+                        showToast("아쉽네요!", true);
+                        typeText("우리가 실험한 범위가 어디까지였죠?<br>20~80℃뿐이에요. 그 이상은 아직 모르는 거예요!", () => els.nextBtn.disabled = false);
+                    }
+                };
+            });
+        }
+    }
+
+    /* ==========================================
+       Stage 3: 생활 속 용해 찾기
+    ========================================== */
+    function renderStage3(sceneIdx) {
+        if(sceneIdx === 0) {
+            els.sceneDisplay.innerHTML = `
+                <div style="display:flex; gap:30px; justify-content:center;" class="fade-in">
+                    <div style="text-align:center; background:rgba(0,0,0,0.3); padding:20px; border-radius:10px;">
+                        <h3 style="color:var(--cyan); margin-bottom:10px;">BEFORE</h3>
+                        <div style="font-size:60px">☕</div><p style="margin-top:10px;">뜨거운 물 (다 녹음)</p>
+                    </div>
+                    <div style="text-align:center; background:rgba(0,0,0,0.3); padding:20px; border-radius:10px;">
+                        <h3 style="color:var(--cyan); margin-bottom:10px;">AFTER</h3>
+                        <div style="font-size:60px">❄️☕</div><p style="margin-top:10px;">식은 물 (가라앉은 코코아 가루)</p>
+                    </div>
+                </div>
+            `;
+            els.interactionArea.innerHTML = `
+                <div class="options-grid">
+                    <button class="option-btn" data-val="A">A. 코코아 가루가 상해서</button>
+                    <button class="option-btn" data-val="B">B. 물이 식으면서 녹는 양이 줄어들어서</button>
+                    <button class="option-btn" data-val="C">C. 너무 오래 두어서 굳어버려서</button>
+                </div>
+            `;
+            typeText("뜨거운 물에 탄 코코아가 다 녹았는데,<br>식으니까 코코아 가루가 바닥에 가라앉아있어요. 왜 그럴까요?");
+            
+            const btns = els.interactionArea.querySelectorAll('.option-btn');
+            btns.forEach(b => b.onclick = () => {
+                state.data.step3_1 = b.dataset.val;
+                btns.forEach(x=>x.classList.remove('selected'));
+                b.classList.add('selected');
+                
+                if(b.dataset.val === 'B') {
+                    showToast("정답입니다! 다음 설명을 확인해봐요.", false);
+                    typeText("맞아요! 뜨거울 때는 많이 녹았지만 온도가 내려가면 녹는 양도 줄어들어요.<br>스텝 2에서 배운 거랑 똑같아요! 🎯", () => els.nextBtn.disabled = false);
+                } else {
+                    showToast("다시 생각해봐요! 온도와 녹는 양의 관계를 떠올려봐요.", true);
+                }
+            });
+        }
+        else if(sceneIdx === 1) {
+            els.sceneDisplay.innerHTML = `
+                <div class="modal-content fade-in" style="margin: 0 auto; background: rgba(0,0,0,0.5); text-align:left; border-color:var(--cyan);">
+                    <h3 style="color:var(--cyan); margin-bottom:15px; text-align:center;">🧪 배운 내용 정리</h3>
+                    <p style="margin-bottom:10px; font-size:18px;">🌡️ <b>온도</b> 높을수록 → 더 많이 녹음</p>
+                    <p style="margin-bottom:10px; font-size:18px; padding-left:25px;">온도 낮아지면 → 다시 나타남</p>
+                </div>
+            `;
+            typeText("배운 과학이 생활 곳곳에 있었어요!<br>이제 직접 실험을 설계해볼게요! 🚀", () => els.nextBtn.disabled = false);
+        }
+    }
+
+    /* ==========================================
+       Stage 4: 실험 설계하기
+    ========================================== */
+    function renderStage4(sceneIdx) {
+        if(sceneIdx === 0) {
+            els.interactionArea.innerHTML = `
+                <div class="options-grid">
+                    <button class="option-btn s41">🍅 방울토마토 띄우기</button>
+                    <button class="option-btn s41">🎨 색깔로 비교하기</button>
+                    <button class="option-btn s41">👅 맛으로 비교하기</button>
+                    <button class="option-btn s41">🤏 끈적이는 정도</button>
+                    <button class="option-btn s41">⚖️ 무게 재기</button>
+                </div>
+            `;
+            typeText("용액의 진하기를 비교할 방법,<br>알고 있는 것을 모두 골라봐요!");
+            
+            const btns = document.querySelectorAll('.s41');
+            btns.forEach(b => b.onclick = () => {
+                b.classList.toggle('selected');
+                const sel = Array.from(btns).filter(x=>x.classList.contains('selected')).map(x=>x.innerText);
+                if(sel.length > 0) {
+                    els.confirmBtn.classList.remove('hidden');
+                    els.confirmBtn.onclick = () => {
+                        state.data.step4_1 = sel;
+                        els.confirmBtn.classList.add('hidden');
+                        els.nextBtn.disabled = false;
+                    };
+                } else els.confirmBtn.classList.add('hidden');
+            });
+        }
+        else if(sceneIdx === 1) {
+            els.sceneDisplay.innerHTML = `
+                <div class="dnd-container fade-in">
+                    <div class="card-pool" id="card-pool">
+                        <div class="dnd-card" draggable="true" data-val="물양">물의 양
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                        <div class="dnd-card" draggable="true" data-val="물온도">물의 온도
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                        <div class="dnd-card" draggable="true" data-val="설탕양" data-diff="1">설탕의 양
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                        <div class="dnd-card" draggable="true" data-val="젓기">젓는 횟수
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                        <div class="dnd-card" draggable="true" data-val="비커">비커 크기
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                        <div class="dnd-card" draggable="true" data-val="토마토">토마토 크기·무게
+                            <div class="card-actions">
+                                <button data-target="dz-same">⚖️ 같게</button>
+                                <button data-target="dz-diff">🔀 다르게</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropzones">
+                        <div class="dropzone" id="dz-same"><h3>⚖️ 같게 해야 할 것</h3></div>
+                        <div class="dropzone" id="dz-diff"><h3>🔀 다르게 해야 할 것</h3></div>
+                    </div>
+                </div>
+            `;
+            typeText("용액의 진하기를 비교하는 실험을 하기 위해<br>같게 해야 할 것과 다르게 해야 할 것을 나눠봐요!<br>카드를 터치(클릭)해서 이동시킬 칸을 고르거나 드래그 해보세요. 🖐️");
+            initDragAndDrop();
+        }
+        else if(sceneIdx === 2) {
+            els.sceneDisplay.innerHTML = `
+                <div class="modal-content fade-in" style="margin:0 auto; padding:20px; background:rgba(0,0,0,0.5);">
+                    <div class="dynamic-input-row">
+                        <span>비커 개수:</span>
+                        <input type="number" id="inp-c" min="2" max="5" placeholder="2"> <span>개 (2~5)</span>
+                    </div>
+                    <div id="err-c" class="inline-feedback inline-error hidden" style="margin-bottom:15px;">2~5 사이로 입력하세요.</div>
+
+                    <button id="btn-create-b" style="margin-top:10px;">비커 준비하기</button>
+                    <div id="dyn-b-area" class="beaker-container" style="margin-top:20px;"></div>
+                </div>
+                <div id="s4-2-fb" class="inline-feedback inline-error hidden" style="margin-top:10px;"></div>
+            `;
+            typeText("구체적인 숫자를 정해봐요!<br>비커가 몇 개인지 먼저 정하면 각 비커에 넣을 설탕 양을 입력할 수 있어요!");
+            
+            document.getElementById('btn-create-b').onclick = () => {
+                const iC = document.getElementById('inp-c');
+                const eC = document.getElementById('err-c');
+                
+                const c = parseInt(iC.value);
+                const w = 50; // 물의 양 50mL 고정
+                
+                let valid = true;
+                if(isNaN(c) || c<2 || c>5) { triggerShakeError(iC); eC.classList.remove('hidden'); valid=false; } else eC.classList.add('hidden');
+                
+                if(!valid) return;
+                
+                state.data.step4_3_water = w;
+                state.data.step4_3_beakerCount = c;
+                
+                let h = '';
+                for(let i=0; i<c; i++){
+                    h += `
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex:1;">
+                        <div style="margin-bottom: 30px; transform: scale(0.85); transform-origin: bottom;">
+                            ${createBeaker(`비커${i+1} (물 50mL)`, '0숟가락', 0, `dbk-${i}`)}
+                        </div>
+                        <div style="font-size:13px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
+                            <span>백반</span>
+                            <input type="number" class="sug-inp" data-idx="${i}" min="1" max="15" placeholder="1~15" style="width:50px; text-align:center; padding:5px; border-radius:4px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--cyan);">
+                            <span>숟가락</span>
+                        </div>
+                    </div>`;
+                }
+                document.getElementById('dyn-b-area').innerHTML = h;
+                document.getElementById('btn-create-b').classList.add('hidden');
+                iC.disabled = true;
+                
+                typeText("비커가 준비됐어요!<br>각 비커에 설탕을 몇 숟가락씩 넣을지 직접 정해봐요.<br>진하기가 모두 달라야 해요! (1~15)");
+                els.confirmBtn.classList.remove('hidden');
+                
+                document.querySelectorAll('.sug-inp').forEach(inp => {
+                    inp.oninput = (e) => {
+                        let v = parseInt(e.target.value) || 0;
+                        if(v > 15) { v = 15; e.target.value = 15; }
+                        const bk = document.getElementById(`dbk-${e.target.dataset.idx}`);
+                        bk.querySelector('.beaker-value').innerText = `${v}숟가락`;
+                        bk.querySelector('.beaker-liquid').style.height = `${Math.min(v*6, 95)}%`;
+                        e.target.classList.remove('error-border');
+                    };
+                });
+                
+                els.confirmBtn.onclick = () => {
+                    const inputs = document.querySelectorAll('.sug-inp');
+                    const vals = Array.from(inputs).map(x=>parseInt(x.value));
+                    
+                    let hasErr = false;
+                    inputs.forEach((inp, i) => {
+                        if(isNaN(vals[i]) || vals[i]<1 || vals[i]>15) {
+                            triggerShakeError(inp);
+                            hasErr = true;
+                        }
+                    });
+                    if(hasErr) {
+                        showToast("모든 칸에 1~15 사이 숫자를 입력하세요.", true);
+                        return;
+                    }
+                    if(new Set(vals).size !== vals.length) {
+                        inputs.forEach(inp => triggerShakeError(inp));
+                        showToast("비커마다 설탕 양이 모두 달라야 해요!", true);
+                        return;
+                    }
+                    
+                    state.data.step4_3_sugars = vals;
+                    els.confirmBtn.classList.add('hidden');
+                    els.nextBtn.disabled = false;
+                };
+            };
+        }
+        else if(sceneIdx === 3) {
+            els.interactionArea.innerHTML = `
+                <div style="display:flex; gap:15px; width:100%;">
+                    <button class="option-btn" style="flex:1; text-align:center; font-size:24px; font-weight:bold;" data-val="O">O</button>
+                    <button class="option-btn" style="flex:1; text-align:center; font-size:24px; font-weight:bold;" data-val="X">X</button>
+                </div>
+            `;
+            typeText("마지막으로!<br>방울토마토가 더 높이 뜨는 용액이 더 진한 용액이다. 맞나요?");
+            
+            els.interactionArea.querySelectorAll('.option-btn').forEach(b => b.onclick = () => {
+                state.data.step4_4_ox = b.dataset.val;
+                if(b.dataset.val === 'O') {
+                    b.classList.add('selected');
+                    showToast("정답입니다!", false);
+                    typeText("맞아요! 진할수록 물체를 더 위로 밀어내요.<br>완벽한 실험 설계 완성이에요! 🎉", () => els.nextBtn.disabled = false);
+                } else {
+                    triggerShakeError(b);
+                    showToast("다시 생각해봐요! 물체가 잘 뜨려면 농도가 어때야 할까요?", true);
+                }
+            });
+        }
+        else if(sceneIdx === 4) {
+            let sHtml = state.data.step4_3_sugars.map((s,i) => `비커${i+1}: ${s}숟가락`).join(' &nbsp; ');
+            els.sceneDisplay.innerHTML = `
+                <div class="modal-content fade-in" style="margin:0 auto; text-align:left; max-width: 600px; padding: 15px; border: 2px solid var(--cyan); background: var(--bg-start); display:flex; flex-direction:column; gap:8px; overflow:hidden;">
+                    <h3 style="text-align:center; color:var(--cyan); margin-bottom:5px; font-size:16px;">📋 ${state.studentName} (${state.grade}학년 ${state.classNum}반)의 실험 설계서</h3>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; border-top:1px solid #4a4a6a; border-bottom:1px solid #4a4a6a; padding:10px 0; font-size:13px;">
+                        <!-- Left Col -->
+                        <div>
+                            <div style="margin-bottom:6px;"><b>[실험 목표]</b><br>진하기가 다른 용액에서 방울토마토 뜨는 정도 비교</div>
+                            <div style="margin-bottom:6px;"><b>[비교할 것]</b><br>용액의 진하기 (설탕의 양)</div>
+                            <div><b>[같게 할 것]</b><br>물의 양 50mL 고정<br>물의 온도, 젓는 횟수<br>비커 크기, 토마토 크기·무게</div>
+                        </div>
+                        <!-- Right Col -->
+                        <div>
+                            <div style="margin-bottom:6px;"><b>[비교 방법]</b><br>${(state.data.step4_1||[]).join(', ')}</div>
+                            <div style="margin-bottom:6px;"><b>[판단 기준]</b><br>방울토마토 더 높이 뜨는 쪽이 더 진한 용액</div>
+                            <div><b>[나의 생각]</b><br><span style="color:var(--text-gray);">${state.data.step2_reason}</span></div>
+                        </div>
+                    </div>
+                    <div style="font-size:13px; text-align:center;">
+                        <b style="color:var(--cyan);">[다르게 할 것: 각 비커의 설탕 양]</b><br>
+                        ${sHtml}
+                    </div>
+                </div>
+            `;
+            els.interactionArea.innerHTML = `
+                <div style="display:flex; gap:10px;">
+                    <button class="option-btn" style="flex:1; text-align:center;" onclick="window.print()">🖨️ 인쇄하기</button>
+                    <button class="option-btn" style="flex:2; text-align:center; background:var(--cyan); color:#000; font-weight:bold;" onclick="submitToAppScript()">✅ 최종 제출 및 완료하기</button>
+                </div>
+            `;
+            typeText("짝짝짝! 드디어 완성됐어요! 🎉<br>여러분이 직접 설계한 실험이에요.<br>과학자가 된 것 같지 않나요?");
+            saveData();
+        }
+    }
+
+    /* ==========================================
+       드래그 앤 드롭 및 모바일 터치 처리 (alert/confirm 대체)
+    ========================================== */
+    function initDragAndDrop() {
+        const cards = document.querySelectorAll('.dnd-card');
+        const dzSame = document.getElementById('dz-same');
+        const dzDiff = document.getElementById('dz-diff');
+        
+        let dragged = null;
+
+        cards.forEach(card => {
+            // 데스크탑 마우스 드래그
+            card.addEventListener('dragstart', (e) => {
+                dragged = card;
+                setTimeout(() => card.classList.add('hidden'), 0);
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('hidden');
+                checkDndFinish();
+            });
+
+            // 모바일 터치 대응 (액션 시트)
+            card.addEventListener('click', (e) => {
+                // 만약 현재 드롭존에 있다면 동작하지 않거나 풀로 돌아가게 할 수 있음
+                // 여기서는 액션시트 표시
+                cards.forEach(c => c.classList.remove('show-actions'));
+                card.classList.add('show-actions');
+            });
+
+            const btns = card.querySelectorAll('.card-actions button');
+            btns.forEach(b => b.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const targetId = b.dataset.target;
+                document.getElementById(targetId).appendChild(card);
+                card.classList.remove('show-actions');
+                checkDndFinish();
+            }));
+        });
+
+        const dropzones = [dzSame, dzDiff];
+        dropzones.forEach(dz => {
+            dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('active'); });
+            dz.addEventListener('dragleave', () => dz.classList.remove('active'));
+            dz.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dz.classList.remove('active');
+                if(dragged) dz.appendChild(dragged);
+            });
+        });
+
+        function checkDndFinish() {
+            const pool = document.getElementById('card-pool');
+            if(pool.children.length === 0) {
+                const diffs = Array.from(dzDiff.children).filter(c=>c.classList.contains('dnd-card'));
+                const hasSugar = diffs.some(c=>c.dataset.diff === '1');
+                const onlySugar = diffs.length === 1 && hasSugar;
+                
+                els.confirmBtn.classList.remove('hidden');
+                els.confirmBtn.onclick = () => {
+                    if(onlySugar) {
+                        showToast("정답!", false);
+                        state.data.step4_2_correct = true;
+                        typeText("완벽해요! 비교하려는 것(설탕의 양)만 다르게,<br>나머지는 모두 같게 해야 공평한 실험이에요! ✅", () => {
+                            els.confirmBtn.classList.add('hidden');
+                            els.nextBtn.disabled = false;
+                        });
+                    } else {
+                        showToast("오답입니다", true);
+                        typeText("설탕의 양은 진하기를 다르게 만드는 조건이에요!<br>나머지는 모두 같게 해야 공평해요. 카드를 눌러 다시 이동시켜봐요.");
+                        cards.forEach(c => pool.appendChild(c)); // 초기화
+                    }
+                };
+            }
+        }
+    }
+
+    /* ==========================================
+       앱스크립트 제출 로직 (뼈대)
+    ========================================== */
+    function submitToAppScript() {
+        showToast("제출 완료! 수고하셨습니다.", false);
+    }
+
+    /* ==========================================
+       이벤트 리스너 등록
+    ========================================== */
+    // 인트로 확인 버튼
+    els.introBtn.onclick = () => {
+        els.introScreen.classList.add('hidden');
+        els.appContainer.classList.remove('hidden');
+        renderCurrentScene();
+    };
+
+    // 정보 입력 및 시작
+    els.startBtn.onclick = () => {
+        const grade = els.inputGrade.value;
+        const cls = els.inputClass.value;
+        const name = els.inputName.value.trim();
+        
+        let hasErr = false;
+        if(!grade || isNaN(grade) || grade<1 || grade>6) { triggerShakeError(els.inputGrade); hasErr=true; }
+        if(!cls || isNaN(cls) || cls<1 || cls>20) { triggerShakeError(els.inputClass); hasErr=true; }
+        if(!name) { triggerShakeError(els.inputName); hasErr=true; }
+        
+        if(hasErr) {
+            showToast("모든 정보를 정확히 입력해주세요.", true);
+            return;
+        }
+
+        state.grade = grade;
+        state.classNum = cls;
+        state.studentName = name;
+        els.studentNameDisplay.innerText = `${name} (${grade}학년 ${cls}반)`;
+        
+        els.startModal.classList.add('hidden');
+        els.introScreen.classList.remove('hidden');
+        
+        // 인트로 타이핑 시작
+        const introMsg = "🚀 긴급 신호 수신!<br>초록별에서 외계인 조르가 지구에 불시착했어요.<br>조르는 지구 과학을 배우려고 열심히 실험하는데…<br>매번 오류를 저지르고 있어요!<br>조르의 잘못된 실험과 주장을 찾아서 바로 잡아 주세요.";
+        setTimeout(() => {
+            typeTextCustom(els.introText, introMsg, 40, () => {
+                els.introBtn.classList.remove('hidden');
+                els.introBtn.classList.add('slide-up');
+            });
+        }, 500);
+    };
+
+    els.nextBtn.onclick = () => {
+        const maxS = STAGES[state.currentStageIdx].scenes - 1;
+        if(state.currentSceneIdx < maxS) {
+            state.currentSceneIdx++;
+        } else if(state.currentStageIdx < STAGES.length - 1) {
+            state.currentStageIdx++;
+            state.currentSceneIdx = 0;
+        }
+        renderCurrentScene();
+    };
+
+    els.prevBtn.onclick = () => {
+        if(state.currentSceneIdx > 0) {
+            state.currentSceneIdx--;
+        } else if(state.currentStageIdx > 0) {
+            state.currentStageIdx--;
+            state.currentSceneIdx = STAGES[state.currentStageIdx].scenes - 1;
+        }
+        renderCurrentScene();
+    };
+
+    els.fullscreenBtn.onclick = () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.log(e));
+        else document.exitFullscreen();
+    };
+
+    // 교사용 모달 열기/닫기
+    els.teacherBtn.onclick = () => {
+        els.teacherModal.classList.remove('hidden');
+        const d = state.data;
+        els.teacherDataContainer.innerHTML = `
+            <table class="data-table">
+                <tr><th>학생 정보</th><td>${state.studentName} (${state.grade}학년 ${state.classNum}반)</td></tr>
+                <tr><th>S1: 예상한 물질</th><td>${d.step1_guess || '-'}</td></tr>
+                <tr><th>S2: 무한정녹음(OX)</th><td>${d.step2_ox || '-'}</td></tr>
+                <tr><th>S2: 비판적 사고 서술</th><td>${d.step2_reason || '-'}</td></tr>
+                <tr><th>S3: 코코아 미스터리</th><td>${d.step3_1 || '-'}</td></tr>
+                <tr><th>S4: 비교 방법</th><td>${(d.step4_1||[]).join(', ')}</td></tr>
+                <tr><th>S4: 변인 통제 성공</th><td>${d.step4_2_correct ? 'O' : 'X'}</td></tr>
+                <tr><th>S4: 비커 수 / 물 양</th><td>${d.step4_3_beakerCount || '-'}개 / ${d.step4_3_water || '-'}mL</td></tr>
+                <tr><th>S4: 각 비커 설탕 양</th><td>${(d.step4_3_sugars||[]).join(', ')}</td></tr>
+                <tr><th>S4: 토마토 뜨는 기준(OX)</th><td>${d.step4_4_ox || '-'}</td></tr>
+            </table>
+        `;
+    };
+    els.closeTeacherBtn.onclick = () => els.teacherModal.classList.add('hidden');
+
+    // 초기화 및 시작 모달 표시
+    window.onload = () => {
+        // 새로고침 시 초기화 (새로운 탐구자)
+        localStorage.removeItem('jorLab_data');
+        localStorage.removeItem('jorLab_name');
+        localStorage.removeItem('jorLab_grade');
+        localStorage.removeItem('jorLab_class');
+        localStorage.removeItem('jorLab_stage');
+        localStorage.removeItem('jorLab_scene');
+        
+        els.inputName.value = "";
+        els.inputGrade.value = "";
+        els.inputClass.value = "";
+        
+        els.startModal.classList.remove('hidden');
+    };
+</script>
+</body>
+</html>
