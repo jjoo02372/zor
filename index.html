@@ -449,7 +449,7 @@
         { id: 4, name: "스테이지 4: 실험 설계하기", scenes: 6 },
     ];
     
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0CLhuuZd-p2K-MsJsshAoUBsiktFucjquHUmEmAFsm07kRNdJBvmWzIQ4aD0gF37z/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzU23voewFWkUbSP47cbzjwI6kS8irqKeAWf4def-7a3sehC_znI0Fr854zcHucZvAd/exec";
 
     let state = {
         grade: "",
@@ -1428,22 +1428,56 @@
 
         showToast("실험 설계가 완료되어 제출되었습니다! 🎓", false);
 
-        // 2. Google Apps Script 연동 전송
+        // 2. Google Apps Script 연동 전송 (URL 파라미터 방식으로 CORS 우회)
         if (WEB_APP_URL && WEB_APP_URL !== "") {
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(record)
-            })
-            .then(() => {
-                console.log("구글 스프레드시트로 전송되었습니다.");
-            })
-            .catch(err => {
-                console.error("구글 스프레드시트 전송 오류:", err);
+            const d = record.data;
+            const params = new URLSearchParams({
+                timestamp: record.timestamp,
+                grade: record.grade,
+                classNum: record.classNum,
+                studentName: record.studentName,
+                step1_guess: d.step1_guess || '',
+                step2_ox: d.step2_ox || '',
+                step2_reason: d.step2_reason || '',
+                step3_1: d.step3_1 || '',
+                step4_1: (d.step4_1 || []).join(', '),
+                step4_2_correct: d.step4_2_correct ? '성공' : '실패',
+                step4_3_beakerCount: d.step4_3_beakerCount || '',
+                step4_3_sugars: (d.step4_3_sugars || []).join(', '),
+                step4_4_ox: d.step4_4_ox || '',
+                step4_5_reflection: d.step4_5_reflection || ''
             });
+
+            // 숨겨진 iframe + form POST로 CORS 없이 전송
+            const iframeName = 'hidden_submit_frame_' + Date.now();
+            const iframe = document.createElement('iframe');
+            iframe.name = iframeName;
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = WEB_APP_URL;
+            form.target = iframeName;
+
+            params.forEach((value, key) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+
+            // 10초 후 정리
+            setTimeout(() => {
+                if (form.parentNode) form.remove();
+                if (iframe.parentNode) iframe.remove();
+            }, 10000);
+
+            console.log("구글 스프레드시트로 전송 시도됨 (hidden form POST)");
         }
     }
 
