@@ -446,7 +446,7 @@
         { id: 1, name: "스테이지 1: 조르의 이상한 실험", scenes: 3 },
         { id: 2, name: "스테이지 2: 조르의 온도 실험", scenes: 3 },
         { id: 3, name: "스테이지 3: 생활 속 용해 찾기", scenes: 2 },
-        { id: 4, name: "스테이지 4: 실험 설계하기", scenes: 5 },
+        { id: 4, name: "스테이지 4: 실험 설계하기", scenes: 6 },
     ];
     
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz0CLhuuZd-p2K-MsJsshAoUBsiktFucjquHUmEmAFsm07kRNdJBvmWzIQ4aD0gF37z/exec";
@@ -469,7 +469,7 @@
             step4_3_beakerCount: 0,
             step4_3_sugars: [],
             step4_4_ox: "",
-            step4_5_caution: ""
+            step4_5_reflection: ""
         }
     };
 
@@ -1262,46 +1262,73 @@
                     </div>
                     <div style="font-size:12px; text-align:center; color:var(--text-gray);">물 50mL 동일 · 색 진하기 = 용액 진하기</div>
                     
-                    <div style="border-top:1px solid #4a4a6a; padding-top:12px; margin-top:5px;">
-                        <b style="color:var(--cyan); font-size:15px;">✏️ 이 실험을 할 때 주의해야 할 점을 적어봐요!</b>
-                        <textarea id="caution-textarea" rows="3" placeholder="예: 뜨거운 물을 다룰 때 조심해야 해요. 유리 비커를 깨뜨리지 않도록 해요..." style="width:100%; margin-top:8px; background:rgba(255,255,255,0.08); border:1px solid var(--cyan); color:white; padding:12px; border-radius:8px; resize:none; font-size:15px; line-height:1.5; box-sizing:border-box;"></textarea>
-                        <div id="caution-error" class="inline-feedback inline-error hidden" style="margin-top:5px;">주의할 점을 꼭 적어주세요!</div>
-                    </div>
-                    
-                    <div style="display:flex; gap:12px; margin-top:10px;">
-                        <button onclick="window.print()" style="flex:1; background:#1e2a4a; color:white; border:1px solid var(--cyan); padding:14px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.2s;">🖨️ 인쇄하기</button>
-                        <button id="final-submit-btn" style="flex:2; background:var(--cyan); color:#000; border:none; padding:14px; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; transition:0.2s; box-shadow:0 4px 15px rgba(0,229,255,0.4);">✅ 최종 제출 및 완료하기</button>
+                    <div style="margin-top:15px;">
+                        <button id="design-confirm-btn" style="width:100%; background:var(--cyan); color:#000; border:none; padding:14px; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; transition:0.2s; box-shadow:0 4px 15px rgba(0,229,255,0.4);">✔ 실험 설계 확인 완료</button>
                     </div>
                 </div>
             </div>`;
 
-            // 씬 영역에는 안내 문구만 표시
             els.sceneDisplay.innerHTML = '<div style="text-align:center; font-size:18px; color:var(--text-gray); padding:40px;">실험 설계서가 팝업으로 표시되었습니다.</div>';
             els.interactionArea.innerHTML = '';
 
-            // 팝업 삽입
             document.body.insertAdjacentHTML('beforeend', popupHtml);
 
-            // 제출 버튼 이벤트
-            document.getElementById('final-submit-btn').onclick = () => {
-                const cautionText = document.getElementById('caution-textarea').value.trim();
-                const cautionError = document.getElementById('caution-error');
-                if (!cautionText) {
-                    triggerShakeError(document.getElementById('caution-textarea'));
-                    cautionError.classList.remove('hidden');
-                    showToast('주의할 점을 꼭 적어주세요!', true);
-                    return;
-                }
-                cautionError.classList.add('hidden');
-                state.data.step4_5_caution = cautionText;
-                submitToAppScript();
+            document.getElementById('design-confirm-btn').onclick = () => {
                 const popup = document.getElementById(popupId);
                 if (popup) popup.remove();
-                els.sceneDisplay.innerHTML = '<div style="text-align:center; padding:40px;"><div style="font-size:48px; margin-bottom:15px;">🎉</div><div style="font-size:22px; font-weight:bold; color:var(--cyan);">제출 완료!</div><div style="font-size:16px; color:var(--text-gray); margin-top:10px;">실험 설계서가 성공적으로 제출되었습니다.</div></div>';
+                els.nextBtn.disabled = false;
             };
 
             typeText("짝짝짝! 드디어 완성됐어요! 🎉<br>여러분이 직접 설계한 실험이에요.<br>과학자가 된 것 같지 않나요?");
             saveData();
+        }
+        else if(sceneIdx === 5) {
+            // 조르 우주 귀환 + 성찰 서술형
+            els.sceneDisplay.innerHTML = `
+                <div class="fade-in" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:15px; text-align:center;">
+                    <svg class="zor-svg" viewBox="0 0 150 180" xmlns="http://www.w3.org/2000/svg" style="width:120px; height:150px; animation: float 3s ease-in-out infinite;">
+                        <path d="M 40 120 C 20 180, 130 180, 110 120" fill="#a0aab5" stroke="#707a85" stroke-width="2" />
+                        <ellipse cx="75" cy="70" rx="60" ry="55" fill="url(#helmet-glow)" />
+                        <circle cx="75" cy="75" r="40" fill="#4ade80" />
+                        <ellipse cx="60" cy="70" rx="9" ry="14" fill="#000" />
+                        <ellipse cx="90" cy="70" rx="9" ry="14" fill="#000" />
+                        <circle cx="62" cy="67" r="3" fill="#fff" />
+                        <circle cx="92" cy="67" r="3" fill="#fff" />
+                        <path d="M 60 92 Q 75 108 90 92" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                        <path d="M 75 35 L 75 15" stroke="#4ade80" stroke-width="4" stroke-linecap="round" />
+                        <circle cx="75" cy="10" r="6" fill="#ef4444" />
+                        <ellipse cx="75" cy="70" rx="60" ry="55" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3" />
+                        <path d="M 30 50 Q 50 15 80 20" stroke="rgba(255,255,255,0.6)" stroke-width="5" fill="none" stroke-linecap="round" />
+                    </svg>
+                    <div style="font-size:20px; font-weight:bold; color:var(--cyan);">🛸 조르가 우주로 돌아갑니다!</div>
+                    <div style="font-size:15px; color:var(--text-gray); max-width:500px; line-height:1.6;">여러분 덕분에 올바른 실험 방법을 배웠어요.<br>이제 초록별로 돌아가서 멋진 과학자가 될 수 있어요! 감사합니다! 💚</div>
+                </div>
+            `;
+
+            els.interactionArea.innerHTML = `
+                <div style="width:100%;">
+                    <textarea id="reflection-textarea" rows="3" placeholder="✏️ 새롭게 알게 된 것, 과학실험을 할 때 중요한 것을 자유롭게 적어봐요..." style="font-size:16px;"></textarea>
+                </div>
+            `;
+
+            typeText("도와줘서 정말 고마워요! 🛸<br>실험은 책을 보고 그대로 따라하는 것이 아니라,<br>알아보고 싶은 것이 무엇인지 생각하면서 주의 깊게 해야 해요.<br>오늘 새롭게 알게 된 것과 과학실험에서 중요한 것을 적어봐요!", () => {
+                els.confirmBtn.classList.remove('hidden');
+                els.confirmBtn.innerText = '✅ 최종 제출 및 완료하기';
+                els.confirmBtn.onclick = () => {
+                    const reflectionText = document.getElementById('reflection-textarea').value.trim();
+                    if (!reflectionText) {
+                        triggerShakeError(document.getElementById('reflection-textarea'));
+                        showToast('성찰 내용을 꼭 적어주세요!', true);
+                        return;
+                    }
+                    state.data.step4_5_reflection = reflectionText;
+                    els.confirmBtn.classList.add('hidden');
+                    submitToAppScript();
+                    els.interactionArea.innerHTML = '';
+                    els.sceneDisplay.innerHTML = '<div style="text-align:center; padding:40px;"><div style="font-size:60px; margin-bottom:15px;">🎉🚀</div><div style="font-size:24px; font-weight:bold; color:var(--cyan);">최종 제출 완료!</div><div style="font-size:16px; color:var(--text-gray); margin-top:10px;">조르와 함께한 과학 탐구가 끝났어요.<br>여러분은 이미 훌륭한 과학자입니다! 🌟</div></div>';
+                    typeText('모든 탐구가 끝났어요! 🎉<br>여러분의 실험 설계서와 생각이 선생님께 전달되었어요.<br>조르가 우주에서 응원하고 있을 거예요! 🛸💚');
+                };
+            });
         }
     }
 
@@ -1456,7 +1483,7 @@
                         <th>S4 변인 통제</th>
                         <th>S4 비커 (개수/설탕 양)</th>
                         <th>S4 토마토 기준</th>
-                        <th>S4 실험 주의사항</th>
+                        <th>S4 성찰</th>
                         <th>관리</th>
                     </tr>
                 </thead>
@@ -1490,7 +1517,7 @@
                         <td style="color:${d.step4_2_correct ? 'var(--green)' : 'var(--red)'}; font-weight:bold;">${d.step4_2_correct ? '성공' : '실패'}</td>
                         <td>${beakerDetails}</td>
                         <td>${d.step4_4_ox || '-'}</td>
-                        <td style="max-width:200px; text-align:left; white-space:normal; word-break:break-all;">${d.step4_5_caution || '-'}</td>
+                        <td style="max-width:200px; text-align:left; white-space:normal; word-break:break-all;">${d.step4_5_reflection || '-'}</td>
                         <td>
                             <button class="delete-btn" onclick="deleteStudentRecord(${r.id})">🗑️</button>
                         </td>
@@ -1543,7 +1570,7 @@
         }
 
         // CSV 헤더 정의
-        let csvContent = "제출 시간,학년,반,이름,S1 예상 용질,S2 무한정 녹음 여부(OX),S2 서술형(비판적 사고),S3 코코아 온도 영향,S4 진하기 비교 방법,S4 변인 통제 여부,S4 비커 수,S4 설탕 양 설정,S4 토마토 기준(OX),S4 실험 주의사항\n";
+        let csvContent = "제출 시간,학년,반,이름,S1 예상 용질,S2 무한정 녹음 여부(OX),S2 서술형(비판적 사고),S3 코코아 온도 영향,S4 진하기 비교 방법,S4 변인 통제 여부,S4 비커 수,S4 설탕 양 설정,S4 토마토 기준(OX),S4 성찰(새롭게 알게 된 것)\n";
 
         // 행 데이터 생성
         records.forEach(r => {
@@ -1563,7 +1590,7 @@
                 d.step4_3_beakerCount || '',
                 `"${sugars}"`,
                 d.step4_4_ox || '',
-                `"${(d.step4_5_caution || '').replace(/"/g, '""')}"`
+                `"${(d.step4_5_reflection || '').replace(/"/g, '""')}"`
             ].join(',');
             csvContent += row + "\n";
         });
