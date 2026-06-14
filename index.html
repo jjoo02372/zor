@@ -138,12 +138,13 @@
         .proc-row.wrong .proc-desc, .proc-row.wrong .proc-num { background: rgba(239, 68, 68, 0.1); }
         
         /* 비커 시각화 */
-        .beaker-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 10px; margin-top: 20px; min-height: 120px; flex-wrap: nowrap; }
-        .beaker { width: 70px; height: 100px; border: 3px solid rgba(255,255,255,0.7); border-top: none; border-radius: 0 0 10px 10px; position: relative; background: rgba(255,255,255,0.05); }
+        .beaker-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: clamp(15px, 5vw, 60px); margin-top: 20px; min-height: 120px; flex-wrap: nowrap; }
+        .beaker-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
+        .beaker { width: 70px; height: 100px; border: 3px solid rgba(255,255,255,0.7); border-top: none; border-radius: 0 0 10px 10px; position: relative; background: rgba(255,255,255,0.05); flex-shrink: 0; margin: 0 auto; }
         .beaker::before { content: ''; position: absolute; top: -5px; left: -10px; right: -10px; height: 5px; border-bottom: 3px solid rgba(255,255,255,0.7); }
         .beaker-liquid { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0, 150, 255, 0.8), rgba(0, 200, 255, 0.4)); border-radius: 0 0 7px 7px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .beaker-label { position: absolute; bottom: -35px; width: 100%; text-align: center; font-size: 16px; white-space: nowrap; font-weight: bold; }
-        .beaker-value { position: absolute; top: -30px; width: 100%; text-align: center; font-size: 15px; color: var(--cyan); font-weight: bold; white-space: nowrap; text-shadow: 0 0 5px #000; }
+        .beaker-label { font-size: 11px; font-weight: bold; text-align: center; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px; line-height: 1.2; word-break: break-all; white-space: normal; }
+        .beaker-value { font-size: 12px; color: var(--cyan); font-weight: bold; text-align: center; text-shadow: 0 0 5px #000; overflow: visible; padding: 0 4px; white-space: nowrap; margin-bottom: 2px; }
         
         /* 슬라이더 */
         .slider-container { width: 100%; max-width: 400px; margin: 10px auto; }
@@ -156,14 +157,14 @@
         textarea:focus { outline: none; background: rgba(255,255,255,0.12); box-shadow: 0 0 8px var(--cyan-glow); }
         
         /* 드래그 앤 드롭 */
-        .dnd-container { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-        .card-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 60px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
-        .dnd-card { background: var(--card-bg); border: 1px solid var(--cyan); padding: 10px 15px; border-radius: 6px; cursor: grab; user-select: none; z-index: 10; font-weight: bold; transition: transform 0.1s; position: relative; }
+        .dnd-container { display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; max-height: 50vh; justify-content: center; }
+        .card-pool { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+        .dnd-card { background: var(--card-bg); border: 1px solid var(--cyan); padding: 4px 8px; border-radius: 6px; cursor: grab; user-select: none; z-index: 10; font-weight: bold; transition: transform 0.1s; position: relative; font-size: 13px; max-height: 40px; display: flex; align-items: center; justify-content: center; }
         .dnd-card:active { cursor: grabbing; }
         .dnd-card.dragging { opacity: 0.9; transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: absolute; pointer-events: none; z-index: 100; }
-        .dropzones { display: flex; gap: 20px; width: 100%; }
-        .dropzone { flex: 1; border: 2px dashed rgba(0,229,255,0.4); border-radius: 8px; padding: 15px; height: 220px; overflow-y: auto; background: rgba(0,229,255,0.05); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: 0.2s; }
-        .dropzone h3 { margin-bottom: 10px; font-size: 16px; color: var(--cyan); flex-shrink: 0; }
+        .dropzones { display: flex; flex-direction: row; gap: 10px; width: 100%; }
+        .dropzone { flex: 1; border: 2px dashed rgba(0,229,255,0.4); border-radius: 8px; padding: 10px; min-height: 100px; overflow: hidden; background: rgba(0,229,255,0.05); display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 5px; transition: 0.2s; }
+        .dropzone h3 { margin-bottom: 5px; font-size: 14px; color: var(--cyan); flex-shrink: 0; width: 100%; text-align: center; }
         .dropzone.active { background: rgba(0,229,255,0.15); border-color: var(--cyan); border-style: solid; }
         
         /* 터치용 선택 액션 시트 (모바일용 인라인 대체 UI) */
@@ -502,9 +503,11 @@
 
     function createBeaker(label, valStr, levelPct, id='') {
         return `
-            <div class="beaker" ${id ? `id="${id}"` : ''}>
+            <div class="beaker-wrapper" ${id ? `id="${id}"` : ''}>
                 <div class="beaker-value">${valStr}</div>
-                <div class="beaker-liquid" style="height: ${levelPct}%"></div>
+                <div class="beaker">
+                    <div class="beaker-liquid" style="height: ${levelPct}%"></div>
+                </div>
                 <div class="beaker-label">${label}</div>
             </div>
         `;
@@ -701,13 +704,24 @@
         }
         else if (sceneIdx === 2) {
             els.sceneDisplay.innerHTML = `
-                <div style="text-align:center; width:100%;" class="fade-in">
-                    <div id="temp-display" style="font-size:20px; font-weight:bold; color:var(--cyan);">현재 온도: 20℃</div>
-                    <div class="slider-container">
-                        <input type="range" id="temp-slider" min="20" max="80" step="20" value="20">
+                <div style="display:flex; flex-direction:row; align-items:center; justify-content:center; width:100%; height:100%; gap:40px;" class="fade-in">
+                    <!-- 왼쪽 슬라이더 영역 -->
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
+                        <div style="font-weight:bold; color:#ef4444; font-size:16px;">80℃</div>
+                        <div class="slider-container" style="width:20px; height:150px; margin:0; position:relative;">
+                            <input type="range" id="temp-slider" min="20" max="80" step="20" value="20" style="position:absolute; width:150px; left:10px; top:150px; transform:rotate(-90deg); transform-origin:0 0;">
+                        </div>
+                        <div style="font-weight:bold; color:#3b82f6; font-size:16px;">20℃</div>
                     </div>
-                    <div class="beaker-container" style="margin-top:10px;">
-                        ${createBeaker('백반 용액', '1숟가락', 50, 'dyn-beaker-s2')}
+                    <!-- 오른쪽 비커 영역 -->
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                        <div id="temp-display" style="font-size:18px; font-weight:bold; color:var(--cyan);">현재 온도: 20℃</div>
+                        <div class="beaker-container" style="margin:0; padding:0;">
+                            <div style="max-height:180px;">
+                                ${createBeaker('백반 용액', '1숟가락', 50, 'dyn-beaker-s2')}
+                            </div>
+                        </div>
+                        <div id="melt-display" style="font-size:15px; color:#fff; font-weight:bold;">녹는양: 1숟가락</div>
                     </div>
                 </div>
             `;
@@ -716,6 +730,7 @@
             const dBeaker = document.getElementById('dyn-beaker-s2');
             const bVal = dBeaker.querySelector('.beaker-value');
             const bLiq = dBeaker.querySelector('.beaker-liquid');
+            const meltDisp = document.getElementById('melt-display');
             
             slider.oninput = (e) => {
                 const v = parseInt(e.target.value);
@@ -725,6 +740,7 @@
                 if(v==60) { sp=5; g1=100; g2=50; }
                 if(v==80) { sp=7; g1=50; g2=0; }
                 bVal.innerText = `${sp}숟가락`;
+                meltDisp.innerText = `녹는양: ${sp}숟가락`;
                 bLiq.style.background = `linear-gradient(to top, rgba(0, ${g2}, 255, 0.8), rgba(0, ${g1}, 255, 0.4))`;
             };
 
@@ -941,19 +957,25 @@
                 
                 let h = '';
                 for(let i=0; i<c; i++){
+                    let scl = Math.min(1.2, Math.max(0.65, (window.innerWidth - 80) / c / 100));
                     h += `
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex:1;">
-                        <div style="margin-bottom: 30px; transform: scale(0.85); transform-origin: bottom;">
-                            ${createBeaker(`비커${i+1} (물 50mL)`, '0숟가락', 0, `dbk-${i}`)}
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex: 1 1 0; min-width: 0; padding: 0 4px;">
+                        <div style="transform: scale(${scl}); transform-origin: bottom;">
+                            ${createBeaker(`비커${i+1}<br>(물 50mL)`, '0숟가락', 0, `dbk-${i}`)}
                         </div>
-                        <div style="font-size:13px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px;">
-                            <span>백반</span>
-                            <input type="number" class="sug-inp" data-idx="${i}" min="1" max="15" placeholder="1~15" style="width:50px; text-align:center; padding:5px; border-radius:4px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--cyan);">
-                            <span>숟가락</span>
+                        <div style="font-size:12px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; width: 100%;">
+                            <span style="white-space: nowrap;">백반</span>
+                            <input type="number" class="sug-inp" data-idx="${i}" min="1" max="15" placeholder="1~15" style="width:100%; max-width:60px; text-align:center; padding:4px; border-radius:4px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--cyan); font-size:12px; box-sizing: border-box;">
+                            <span style="white-space: nowrap;">숟가락</span>
                         </div>
                     </div>`;
                 }
-                document.getElementById('dyn-b-area').innerHTML = h;
+                const dynArea = document.getElementById('dyn-b-area');
+                dynArea.innerHTML = h;
+                dynArea.style.width = '100vw';
+                dynArea.style.padding = '0 8px';
+                dynArea.style.boxSizing = 'border-box';
+                dynArea.style.gap = '5px';
                 document.getElementById('btn-create-b').classList.add('hidden');
                 iC.disabled = true;
                 
