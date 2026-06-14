@@ -139,11 +139,12 @@
         
         /* 비커 시각화 */
         .beaker-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: clamp(15px, 5vw, 60px); margin-top: 20px; min-height: 120px; flex-wrap: nowrap; }
-        .beaker-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 100%; }
-        .beaker { width: 70px; height: 100px; border: 3px solid rgba(255,255,255,0.7); border-top: none; border-radius: 0 0 10px 10px; position: relative; background: rgba(255,255,255,0.05); flex-shrink: 0; margin: 0 auto; }
+        .beaker-container { display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 80px; margin-top: 20px; min-height: 120px; flex-wrap: nowrap; }
+        .beaker-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; width: 100%; }
+        .beaker { border: 3px solid rgba(255,255,255,0.7); border-top: none; border-radius: 0 0 10px 10px; position: relative; background: rgba(255,255,255,0.05); flex-shrink: 0; margin: 0 auto; }
         .beaker::before { content: ''; position: absolute; top: -5px; left: -10px; right: -10px; height: 5px; border-bottom: 3px solid rgba(255,255,255,0.7); }
         .beaker-liquid { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0, 150, 255, 0.8), rgba(0, 200, 255, 0.4)); border-radius: 0 0 7px 7px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .beaker-label { font-size: 13px; font-weight: bold; text-align: center; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; line-height: 1.3; word-break: keep-all; white-space: normal; }
+        .beaker-label { font-size: 13px; font-weight: bold; text-align: center; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px; line-height: 1.3; white-space: nowrap; }
         .beaker-value { font-size: 14px; color: var(--cyan); font-weight: bold; text-align: center; text-shadow: 0 0 5px #000; overflow: visible; padding: 0 4px; white-space: nowrap; margin-bottom: 2px; }
         
         /* 슬라이더 */
@@ -501,14 +502,14 @@
         els.stageTitle.innerText = STAGES[state.currentStageIdx].name;
     }
 
-    function createBeaker(label, valStr, levelPct, id='') {
+    function createBeaker(label, valStr, levelPct, id='', w=120, h=160, fsz=0) {
         return `
             <div class="beaker-wrapper" ${id ? `id="${id}"` : ''}>
                 <div class="beaker-value">${valStr}</div>
-                <div class="beaker">
+                <div class="beaker" style="width:${w}px; height:${h}px;">
                     <div class="beaker-liquid" style="height: ${levelPct}%"></div>
                 </div>
-                <div class="beaker-label">${label}</div>
+                <div class="beaker-label" ${fsz ? `style="font-size:${fsz}px; white-space:normal; word-break:break-all;"` : ''}>${label}</div>
             </div>
         `;
     }
@@ -523,6 +524,13 @@
         els.confirmBtn.disabled = false;
         els.nextBtn.disabled = true;
         els.prevBtn.disabled = (state.currentStageIdx === 0 && state.currentSceneIdx === 0);
+        
+        const charContainer = document.querySelector('.character-container');
+        if (state.currentStageIdx === 3 && state.currentSceneIdx === 2) {
+            if(charContainer) charContainer.style.display = 'none';
+        } else {
+            if(charContainer) charContainer.style.display = 'flex';
+        }
         
         updateNav();
         saveData();
@@ -745,9 +753,9 @@
             };
 
             els.interactionArea.innerHTML = `
-                <div class="options-grid" style="grid-template-columns: 1fr 1fr;">
-                    <button class="option-btn" style="text-align:center; font-size:24px; font-weight:bold;" data-val="O">O</button>
-                    <button class="option-btn" style="text-align:center; font-size:24px; font-weight:bold;" data-val="X">X</button>
+                <div class="options-grid" style="display:flex; flex-direction:row; justify-content:center; gap:24px; width:100%;">
+                    <button class="option-btn" style="width:160px; height:56px; text-align:center; font-size:22px; font-weight:bold; border-radius:12px; flex:none;" data-val="O">O</button>
+                    <button class="option-btn" style="width:160px; height:56px; text-align:center; font-size:22px; font-weight:bold; border-radius:12px; flex:none;" data-val="X">X</button>
                 </div>
                 <div id="s2-reason-box" class="hidden slide-up" style="width:100%;">
                     <textarea id="s2-reason" rows="2" placeholder="✏️ 왜 그렇게 생각했나요? 내 생각을 자유롭게 써봐요..."></textarea>
@@ -956,26 +964,34 @@
                 state.data.step4_3_beakerCount = c;
                 
                 let h = '';
+                let bw = 140, bh = 180, fsz = 13;
+                if(c===3) { bw = 100; bh = 140; fsz = 13; }
+                else if(c===4) { bw = 75; bh = 110; fsz = 11; }
+                else if(c===5) { bw = 60; bh = 90; fsz = 11; }
+                
                 for(let i=0; i<c; i++){
-                    let scl = Math.min(1.2, Math.max(0.65, (window.innerWidth - 80) / c / 100));
                     h += `
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:5px; flex: 1 1 0; min-width: 0; padding: 0 4px;">
-                        <div style="transform: scale(${scl}); transform-origin: bottom;">
-                            ${createBeaker(`비커${i+1}<br>(물 50mL)`, '0숟가락', 0, `dbk-${i}`)}
-                        </div>
-                        <div style="font-size:12px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; width: 100%;">
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-start; flex: 1 1 0; min-width:0;">
+                        ${createBeaker(`비커${i+1}<br>(물 50mL)`, '0숟가락', 0, `dbk-${i}`, bw, bh, fsz)}
+                        <div style="font-size:12px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; width: 100%; margin-top:5px;">
                             <span style="white-space: nowrap;">백반</span>
-                            <input type="number" class="sug-inp" data-idx="${i}" min="1" max="15" placeholder="1~15" style="width:100%; max-width:60px; text-align:center; padding:4px; border-radius:4px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--cyan); font-size:12px; box-sizing: border-box;">
+                            <input type="number" class="sug-inp" data-idx="${i}" min="1" max="15" placeholder="1~15" style="width:${bw*0.9}px; max-width:100%; text-align:center; padding:4px; border-radius:4px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--cyan); font-size:12px; box-sizing: border-box;">
                             <span style="white-space: nowrap;">숟가락</span>
                         </div>
                     </div>`;
                 }
                 const dynArea = document.getElementById('dyn-b-area');
                 dynArea.innerHTML = h;
-                dynArea.style.width = '100vw';
+                dynArea.style.width = '100%';
                 dynArea.style.padding = '0 8px';
                 dynArea.style.boxSizing = 'border-box';
-                dynArea.style.gap = '5px';
+                dynArea.style.display = 'flex';
+                dynArea.style.flexDirection = 'row';
+                dynArea.style.justifyContent = 'space-evenly';
+                dynArea.style.alignItems = 'flex-start';
+                dynArea.style.overflow = 'hidden';
+                dynArea.style.flexWrap = 'nowrap';
+                dynArea.style.gap = '10px';
                 document.getElementById('btn-create-b').classList.add('hidden');
                 iC.disabled = true;
                 
@@ -1022,9 +1038,9 @@
         }
         else if(sceneIdx === 3) {
             els.interactionArea.innerHTML = `
-                <div style="display:flex; gap:15px; width:100%;">
-                    <button class="option-btn" style="flex:1; text-align:center; font-size:24px; font-weight:bold;" data-val="O">O</button>
-                    <button class="option-btn" style="flex:1; text-align:center; font-size:24px; font-weight:bold;" data-val="X">X</button>
+                <div style="display:flex; flex-direction:row; justify-content:center; gap:24px; width:100%;">
+                    <button class="option-btn" style="width:160px; height:56px; text-align:center; font-size:22px; font-weight:bold; border-radius:12px; flex:none;" data-val="O">O</button>
+                    <button class="option-btn" style="width:160px; height:56px; text-align:center; font-size:22px; font-weight:bold; border-radius:12px; flex:none;" data-val="X">X</button>
                 </div>
             `;
             typeText("마지막으로!<br>방울토마토가 더 높이 뜨는 용액이 더 진한 용액이다. 맞나요?");
