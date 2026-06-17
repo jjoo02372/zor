@@ -69,10 +69,10 @@
         .talking { animation: talk 0.3s infinite !important; }
         
         /* Scene Content */
-        .scene-content { width: 70%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .scene-content { width: 70%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; }
         
         /* Step Navigator */
-        .step-navigator { position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 20px; z-index: 10; width: 300px; justify-content: space-between;}
+        .step-navigator { position: relative; display: flex; align-items: center; gap: 20px; z-index: 10; width: 300px; justify-content: space-between; flex-shrink: 0; margin-bottom: 10px; }
         .step-circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; z-index: 2; transition: 0.3s; }
         .step-circle.completed { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan-glow); }
         .step-circle.current { border: 2px solid #fff; background: var(--bg-start); }
@@ -127,12 +127,12 @@
         .option-btn.selected { border-color: var(--cyan); background: rgba(0,229,255,0.15); box-shadow: inset 0 0 10px rgba(0,229,255,0.2); }
         
         /* 실험 과정 테이블 (인라인 피드백을 위해 구조 변경) */
-        .procedure-list { width: 100%; margin-top: 10px; font-size: 14px; background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden; display: flex; flex-direction: row; align-items: stretch; }
+        .procedure-list { width: 100%; margin-top: 10px; font-size: 17px; background: rgba(0,0,0,0.3); border-radius: 8px; overflow: hidden; display: flex; flex-direction: row; align-items: stretch; }
         .proc-row { display: flex; flex-direction: column; flex: 1; border-right: 1px solid #4a4a6a; cursor: pointer; transition: 0.2s; text-align: center; justify-content: flex-start; }
         .proc-row:last-child { border-right: none; }
         .proc-row:hover { background: rgba(255,255,255,0.08); }
-        .proc-num { padding: 8px; width: 100%; font-weight: bold; background: rgba(0,0,0,0.2); border-bottom: 1px solid #4a4a6a; }
-        .proc-desc { padding: 8px; flex: 1; font-size: 13px; word-break: keep-all; }
+        .proc-num { padding: 10px 8px; width: 100%; font-weight: bold; font-size: 18px; background: rgba(0,0,0,0.2); border-bottom: 1px solid #4a4a6a; }
+        .proc-desc { padding: 10px 8px; flex: 1; font-size: 16px; word-break: keep-all; }
         .proc-feedback { display: none !important; }
         .proc-row.correct .proc-desc, .proc-row.correct .proc-num { background: rgba(34, 197, 94, 0.1); }
         .proc-row.wrong .proc-desc, .proc-row.wrong .proc-num { background: rgba(239, 68, 68, 0.1); }
@@ -150,8 +150,8 @@
         .beaker::before { content: ''; position: absolute; top: -5px; left: -10px; right: -10px; height: 5px; border-bottom: 3px solid rgba(255,255,255,0.7); }
         .beaker-liquid { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0, 150, 255, 0.8), rgba(0, 200, 255, 0.4)); border-radius: 0 0 7px 7px; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .beaker-liquid.concentration-liquid { transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .beaker-label { font-size: 13px; font-weight: bold; text-align: center; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px; line-height: 1.3; white-space: nowrap; }
-        .beaker-value { font-size: 14px; color: var(--cyan); font-weight: bold; text-align: center; text-shadow: 0 0 5px #000; overflow: visible; padding: 0 4px; white-space: nowrap; margin-bottom: 2px; }
+        .beaker-label { font-size: 17px; font-weight: bold; text-align: center; display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px; line-height: 1.3; white-space: nowrap; }
+        .beaker-value { font-size: 18px; color: var(--cyan); font-weight: bold; text-align: center; text-shadow: 0 0 5px #000; overflow: visible; padding: 0 4px; white-space: nowrap; margin-bottom: 2px; }
         
         /* 슬라이더 */
         .slider-container { width: 100%; max-width: 400px; margin: 10px auto; }
@@ -418,7 +418,7 @@
                 <div class="step-circle pending" id="nav-step-3">3</div>
                 <div class="step-circle pending" id="nav-step-4">4</div>
             </div>
-            <div id="scene-display" style="width: 100%; height: 100%; padding-top: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div id="scene-display" style="width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: visible;">
             </div>
         </div>
     </div>
@@ -832,16 +832,16 @@
                         <div class="proc-num">①</div><div class="proc-desc">차가운 물 50mL, 따뜻한 물 50mL 준비</div>
                         <div class="proc-feedback"></div>
                     </div>
+                    <div class="proc-row">
+                        <div class="proc-num">②</div><div class="proc-desc">백반을 한 숟가락씩 넣으며 관찰</div>
+                        <div class="proc-feedback"></div>
+                    </div>
                     <div class="proc-row" data-wrong="1">
-                        <div class="proc-num">②</div><div class="proc-desc">차가운 물 비커: 유리막대로 200번 젓기</div>
+                        <div class="proc-num">③</div><div class="proc-desc">차가운 물 비커: 유리막대로 200번 젓기</div>
                         <div class="proc-feedback"></div>
                     </div>
                     <div class="proc-row" data-wrong="2">
-                        <div class="proc-num">③</div><div class="proc-desc">따뜻한 물 비커: 유리막대로 10번 젓기</div>
-                        <div class="proc-feedback"></div>
-                    </div>
-                    <div class="proc-row">
-                        <div class="proc-num">④</div><div class="proc-desc">백반을 한 숟가락씩 넣으며 관찰</div>
+                        <div class="proc-num">④</div><div class="proc-desc">따뜻한 물 비커: 유리막대로 10번 젓기</div>
                         <div class="proc-feedback"></div>
                     </div>
                     <div class="proc-row">
