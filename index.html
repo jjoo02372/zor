@@ -256,6 +256,369 @@
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
+
+        /* ===== 윤리 가이드 게이트 ===== */
+        #ethics-gate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(160deg, #05071a 0%, #0d1442 40%, #1a0a3e 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 250;
+            overflow: hidden;
+        }
+        #ethics-gate::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="1.5" fill="white" opacity="0.15"/><circle cx="100" cy="80" r="1" fill="white" opacity="0.25"/><circle cx="150" cy="180" r="2" fill="white" opacity="0.2"/><circle cx="60" cy="140" r="1.2" fill="white" opacity="0.18"/></svg>') repeat;
+            animation: starsDrift 60s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes starsDrift {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-200px); }
+        }
+        .ethics-container {
+            position: relative; z-index: 1;
+            width: 90%; max-width: 680px;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 18px;
+            max-height: 95vh;
+        }
+        .ethics-header {
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .ethics-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            color: #000; font-weight: 800; font-size: 13px;
+            padding: 5px 16px; border-radius: 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 3px 10px rgba(249, 115, 22, 0.4);
+            letter-spacing: 1px;
+        }
+        .ethics-title {
+            font-size: 26px; font-weight: 900; color: #fff;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+            margin-bottom: 4px;
+        }
+        .ethics-subtitle {
+            font-size: 14px; color: var(--text-gray);
+        }
+        .ethics-scroll-box {
+            flex: 1;
+            width: 100%;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            background: rgba(10, 10, 30, 0.7);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--cyan) transparent;
+        }
+        .ethics-scroll-box::-webkit-scrollbar { width: 6px; }
+        .ethics-scroll-box::-webkit-scrollbar-track { background: transparent; }
+        .ethics-scroll-box::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
+        .ethics-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .ethics-card:last-child { margin-bottom: 0; }
+        .ethics-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.08);
+        }
+        .ethics-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            border-radius: 4px 0 0 4px;
+        }
+        .ethics-card.card-orange::before { background: linear-gradient(180deg, #f59e0b, #f97316); }
+        .ethics-card.card-green::before { background: linear-gradient(180deg, #22c55e, #16a34a); }
+        .ethics-card.card-red::before { background: linear-gradient(180deg, #ef4444, #dc2626); }
+        .ethics-card.card-blue::before { background: linear-gradient(180deg, #3b82f6, #2563eb); }
+        .ethics-card-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 8px;
+        }
+        .ethics-card-badge {
+            font-size: 11px; font-weight: 700;
+            padding: 3px 10px; border-radius: 12px;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .badge-autonomy { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-relevance { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-safety { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-transparency { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .ethics-card-title {
+            font-size: 16px; font-weight: 800; color: #fff;
+        }
+        .ethics-card-guideline {
+            font-size: 14px; font-weight: 700; color: var(--cyan);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .ethics-card-desc {
+            font-size: 13px; color: #b0b0c0; line-height: 1.55;
+        }
+        .ethics-footer {
+            flex-shrink: 0;
+            width: 100%;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .ethics-check-label {
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer;
+            font-size: 15px; font-weight: 600; color: #ccc;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            transition: all 0.3s;
+            user-select: none;
+        }
+        .ethics-check-label:hover {
+            background: rgba(0, 229, 255, 0.05);
+            border-color: rgba(0, 229, 255, 0.3);
+        }
+        .ethics-check-label input[type="checkbox"] {
+            width: 20px; height: 20px;
+            accent-color: var(--cyan);
+            cursor: pointer;
+        }
+        .ethics-check-label.checked {
+            color: #fff;
+            border-color: var(--cyan);
+            background: rgba(0, 229, 255, 0.08);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+        #ethics-start-btn {
+            background: linear-gradient(135deg, #00e5ff, #0ea5e9);
+            color: #000; border: none;
+            padding: 14px 50px; border-radius: 10px;
+            font-weight: 800; font-size: 17px;
+            cursor: not-allowed;
+            opacity: 0.35;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+        }
+        #ethics-start-btn.active {
+            cursor: pointer;
+            opacity: 1;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.5), 0 5px 15px rgba(0, 229, 255, 0.3);
+            animation: btnPulse 2s ease-in-out infinite;
+        }
+        #ethics-start-btn.active:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 0 35px rgba(0, 229, 255, 0.6), 0 8px 25px rgba(0, 229, 255, 0.4);
+        }
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(0, 229, 255, 0.5), 0 5px 15px rgba(0, 229, 255, 0.3); }
+            50% { box-shadow: 0 0 35px rgba(0, 229, 255, 0.7), 0 5px 20px rgba(0, 229, 255, 0.5); }
+        }
+        .ethics-scroll-hint {
+            font-size: 12px; color: rgba(255,255,255,0.35);
+            text-align: center;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ===== 법적 푸터 ===== */
+        .legal-footer {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            line-height: 1.7;
+            z-index: 5;
+            pointer-events: auto;
+        }
+        .legal-footer-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .legal-footer-links a {
+            color: rgba(255, 255, 255, 0.45);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 11px;
+        }
+        .legal-footer-links a:hover {
+            color: var(--cyan);
+            text-decoration: underline;
+        }
+        .legal-footer-links .sep {
+            color: rgba(255, 255, 255, 0.15);
+            user-select: none;
+        }
+        .legal-footer .copyright {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ===== 법적 문서 팝업 모달 ===== */
+        #legal-popup-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500;
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.3s ease-out;
+        }
+        .legal-popup-container {
+            width: 90%; max-width: 720px;
+            max-height: 85vh;
+            background: linear-gradient(160deg, #0d1442, #1a0a3e);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .legal-popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+        .legal-popup-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--cyan);
+            margin: 0;
+        }
+        .legal-popup-close {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #aaa;
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .legal-popup-close:hover {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .legal-popup-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            font-size: 13px;
+            color: #c0c0d0;
+            line-height: 1.7;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 229, 255, 0.3) transparent;
+        }
+        .legal-popup-body::-webkit-scrollbar { width: 5px; }
+        .legal-popup-body::-webkit-scrollbar-track { background: transparent; }
+        .legal-popup-body::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 3px; }
+        .legal-popup-body h1 {
+            font-size: 20px; font-weight: 800; color: #fff;
+            margin-bottom: 6px; padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .legal-popup-body h2 {
+            font-size: 15px; font-weight: 700; color: var(--cyan);
+            margin-top: 24px; margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+        }
+        .legal-popup-body h3 {
+            font-size: 14px; font-weight: 700; color: #e0e0f0;
+            margin-top: 16px; margin-bottom: 6px;
+        }
+        .legal-popup-body p {
+            margin-bottom: 10px;
+        }
+        .legal-popup-body strong {
+            color: #e8e8f0;
+        }
+        .legal-popup-body table {
+            width: 100%; border-collapse: collapse;
+            margin: 12px 0; font-size: 12px;
+        }
+        .legal-popup-body table th,
+        .legal-popup-body table td {
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 10px;
+            text-align: left;
+        }
+        .legal-popup-body table th {
+            background: rgba(0, 229, 255, 0.08);
+            color: var(--cyan);
+            font-weight: 700;
+        }
+        .legal-popup-body blockquote {
+            border-left: 3px solid rgba(245, 158, 11, 0.5);
+            background: rgba(245, 158, 11, 0.06);
+            padding: 10px 14px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+            color: #d0c090;
+        }
+        .legal-popup-body ol, .legal-popup-body ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        .legal-popup-body li {
+            margin-bottom: 4px;
+        }
+        .legal-popup-body hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 20px 0;
+        }
+        .legal-popup-body a {
+            color: var(--cyan);
+            text-decoration: underline;
+        }
+        .legal-popup-footer {
+            padding: 14px 24px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .legal-popup-footer button {
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            padding: 10px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .legal-popup-footer button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -326,6 +689,125 @@
         </div>
         <button id="start-btn" style="margin-top:20px;">탐구 시작! 🚀</button>
     </div>
+    <!-- 법적 푸터 (시작 모달) -->
+    <div class="legal-footer">
+        <div class="legal-footer-links">
+            <a id="footer-terms-link">이용약관</a>
+            <span class="sep">|</span>
+            <a id="footer-privacy-link">개인정보처리방침</a>
+            <span class="sep">|</span>
+            <span>정보관리책임자: 수업 담당 교사</span>
+        </div>
+        <div class="copyright">© 2026 조르의 과학 실험실. All rights reserved.</div>
+    </div>
+    </div>
+</div>
+
+<!-- 윤리 핵심가이드 게이트 -->
+<div id="ethics-gate" class="hidden">
+    <div class="ethics-container">
+        <div class="ethics-header">
+            <div class="ethics-badge">📋 필수 확인</div>
+            <div class="ethics-title">🤖 생성형 AI 윤리 핵심가이드</div>
+            <div class="ethics-subtitle">활동을 시작하기 전에 아래 가이드를 끝까지 읽어주세요.</div>
+        </div>
+
+        <div class="ethics-scroll-box" id="ethics-scroll-box">
+            <!-- 가이드 1 -->
+            <div class="ethics-card card-orange">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-autonomy">주도성</span>
+                    <span class="ethics-card-badge badge-relevance">합목적성</span>
+                    <span class="ethics-card-title">가이드 1 — 활용 목적</span>
+                </div>
+                <div class="ethics-card-guideline">생성형 AI를 쓰기 전, '왜' 쓰는지 말할 수 있어야 해요.</div>
+                <div class="ethics-card-desc">
+                    생성형 AI를 사용하기 전에 '지금 내가 왜 쓰려고 하지?'라고 스스로 물어보세요. 생성형 AI는 내 생각을 대신해주는 게 아니라, 내 생각을 도와주는 도구임을 기억하세요. 모든 공부에 생성형 AI가 필요한 것은 아니므로, 지금 하는 활동에 생성형 AI를 사용하는 것이 나의 학습에 정말 도움이 될지 먼저 고민해요.
+                </div>
+            </div>
+
+            <!-- 가이드 2 -->
+            <div class="ethics-card card-orange">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-autonomy">주도성</span>
+                    <span class="ethics-card-title">가이드 2 — 주도적 학습</span>
+                </div>
+                <div class="ethics-card-guideline">생성형 AI에게 물어보기 전, 내 생각을 먼저 말해요.</div>
+                <div class="ethics-card-desc">
+                    막막할 때 바로 생성형 AI에게 묻고 싶은 마음이 들 수 있지만, 먼저 스스로 시도해 보아야 나의 성장에 도움이 돼요. 주제에 대해 내가 이는 것과 내 아이디어를 먼저 공책에 적극적으로 적은 뒤에 생성형 AI를 활용하세요.
+                </div>
+            </div>
+
+            <!-- 가이드 3 -->
+            <div class="ethics-card card-orange">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-autonomy">주도성</span>
+                    <span class="ethics-card-title">가이드 3 — 비판적 검증</span>
+                </div>
+                <div class="ethics-card-guideline">생성형 AI가 틀릴 수 있다는 점을 알아요.</div>
+                <div class="ethics-card-desc">
+                    생성형 AI는 틀린 정보를 마치 사실인 것처럼 제시하기도 하므로, 알려준 내용은 항상 '정말 맞을까?' 하고 한 번 더 확인하는 습관을 가져요. 중요한 내용일수록 책을 찾아보거나 선생님께 여쭤보는 등 다른 방법으로도 꼭 다시 확인하세요.
+                </div>
+            </div>
+
+            <!-- 가이드 4 -->
+            <div class="ethics-card card-orange">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-autonomy">주도성</span>
+                    <span class="ethics-card-badge badge-relevance">합목적성</span>
+                    <span class="ethics-card-title">가이드 4 — 사고의 확장</span>
+                </div>
+                <div class="ethics-card-guideline">생성형 AI와 함께 상상하며 내 생각을 더 크게 키워요.</div>
+                <div class="ethics-card-desc">
+                    생성형 AI를 내 생각의 범위를 넓혀주는 도구로 사용해보세요. 생성형 AI의 결과물을 그대로 사용하지 말고, 나의 경험과 생각을 더하여 나만의 색깔을 담은 최종 결과물을 만들어요.
+                </div>
+            </div>
+
+            <!-- 가이드 5 -->
+            <div class="ethics-card card-red">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-safety">안전성</span>
+                    <span class="ethics-card-title">가이드 5 — 안전과 관계</span>
+                </div>
+                <div class="ethics-card-guideline">나의 정보와 비밀을 말하지 않아요.</div>
+                <div class="ethics-card-desc">
+                    내가 입력한 정보는 어디에서 어떻게 사용될지 모르기 때문에 이름, 주소, 학교, 전화번호 같은 개인정보는 생성형 AI에게 알려주면 안돼요. 생성형 AI는 계산된 답변을 내놓는 프로그램이라 감정이 없어요. 나의 고민을 털어놓으며 지나치게 의지하기보다, 친구나 부모님, 선생님과의 실제 대화를 통해 마음을 나눠요.
+                </div>
+            </div>
+
+            <!-- 가이드 6 -->
+            <div class="ethics-card card-blue">
+                <div class="ethics-card-header">
+                    <span class="ethics-card-badge badge-transparency">투명성</span>
+                    <span class="ethics-card-title">가이드 6 — 투명성 · 윤리</span>
+                </div>
+                <div class="ethics-card-guideline">생성형 AI의 도움을 받았다면 숨기지 않고 정직하게 이야기해요.</div>
+                <div class="ethics-card-desc">
+                    어느 부분이 생성형 AI의 것이고 어느 부분이 나의 것인지 명확히 밝히는 것은 나 자신을 속이지 않는 정직한 태도예요. 생성형 AI를 쓴 사실을 정직하게 밝힐 때 나의 노력이 더 빛나고, 가치 있게 인정받을 수 있어요.
+                </div>
+            </div>
+        </div>
+
+        <div class="ethics-scroll-hint" id="ethics-scroll-hint">↓ 스크롤하여 모든 가이드를 읽어주세요 ↓</div>
+
+        <div class="ethics-footer">
+            <label class="ethics-check-label" id="ethics-check-label">
+                <input type="checkbox" id="ethics-checkbox">
+                위 윤리 핵심가이드를 모두 읽었으며, 이를 지키겠습니다.
+            </label>
+            <button id="ethics-start-btn" disabled>🚀 시작하기</button>
+        </div>
+        <!-- 법적 푸터 (윤리 게이트) -->
+        <div class="legal-footer" style="position:relative; margin-top:8px;">
+            <div class="legal-footer-links">
+                <a id="gate-terms-link">이용약관</a>
+                <span class="sep">|</span>
+                <a id="gate-privacy-link">개인정보처리방침</a>
+                <span class="sep">|</span>
+                <span>정보관리책임자: 수업 담당 교사</span>
+            </div>
+            <div class="copyright">© 2026 조르의 과학 실험실. All rights reserved.</div>
+        </div>
     </div>
 </div>
 
@@ -341,6 +823,22 @@
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button id="password-cancel-btn" style="flex: 1; background: #4a4a6a; margin: 0; padding: 10px;">취소</button>
             <button id="password-confirm-btn" style="flex: 1; margin: 0; padding: 10px; background: #f59e0b; color: #000;">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 법적 문서 팝업 모달 -->
+<div id="legal-popup-modal" class="hidden">
+    <div class="legal-popup-container">
+        <div class="legal-popup-header">
+            <h2 id="legal-popup-title">문서 제목</h2>
+            <button class="legal-popup-close" id="legal-popup-close-btn">✕</button>
+        </div>
+        <div class="legal-popup-body" id="legal-popup-body">
+            <!-- 내용이 여기에 렌더링됩니다 -->
+        </div>
+        <div class="legal-popup-footer">
+            <button id="legal-popup-confirm-btn">확인</button>
         </div>
     </div>
 </div>
@@ -508,7 +1006,22 @@
         passwordCancelBtn: document.getElementById('password-cancel-btn'),
         passwordError: document.getElementById('password-error'),
         downloadCsvBtn: document.getElementById('download-csv-btn'),
-        resetAllBtn: document.getElementById('reset-all-btn')
+        resetAllBtn: document.getElementById('reset-all-btn'),
+
+        // 윤리 가이드 게이트 요소
+        ethicsGate: document.getElementById('ethics-gate'),
+        ethicsScrollBox: document.getElementById('ethics-scroll-box'),
+        ethicsScrollHint: document.getElementById('ethics-scroll-hint'),
+        ethicsCheckbox: document.getElementById('ethics-checkbox'),
+        ethicsCheckLabel: document.getElementById('ethics-check-label'),
+        ethicsStartBtn: document.getElementById('ethics-start-btn'),
+
+        // 법적 팝업 모달 요소
+        legalPopupModal: document.getElementById('legal-popup-modal'),
+        legalPopupTitle: document.getElementById('legal-popup-title'),
+        legalPopupBody: document.getElementById('legal-popup-body'),
+        legalPopupCloseBtn: document.getElementById('legal-popup-close-btn'),
+        legalPopupConfirmBtn: document.getElementById('legal-popup-confirm-btn')
     };
 
     let typingTimeout;
@@ -1642,6 +2155,269 @@
     }
 
     /* ==========================================
+       법적 문서 팝업 시스템
+    ========================================== */
+    // 간이 마크다운 → HTML 변환기
+    function mdToHtml(md) {
+        let html = md;
+        // 테이블 변환
+        html = html.replace(/^\|(.+)\|\s*$/gm, (match, content) => {
+            const cells = content.split('|').map(c => c.trim());
+            return '<tr>' + cells.map(c => {
+                if (/^[:\-]+$/.test(c)) return null; // 구분선 행 제거용 마커
+                return `<td>${c}</td>`;
+            }).filter(c => c !== null).join('') + '</tr>';
+        });
+        // 테이블 구분선 행 제거
+        html = html.replace(/<tr>(<td>[:\-]+<\/td>)+<\/tr>/g, '');
+        // 연속된 tr을 table로 묶기
+        html = html.replace(/((?:<tr>.*?<\/tr>\s*)+)/g, (match) => {
+            // 첫 번째 tr을 th로 변환
+            const rows = match.trim().split('\n').filter(r => r.trim());
+            if (rows.length > 0) {
+                rows[0] = rows[0].replace(/<td>/g, '<th>').replace(/<\/td>/g, '</th>');
+            }
+            return '<table>' + rows.join('') + '</table>';
+        });
+        // 제목
+        html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+        html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+        html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+        // 구분선
+        html = html.replace(/^---$/gm, '<hr>');
+        // 볼드
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        // 링크
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // 블록 인용 (> 로 시작하는 줄)
+        html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+        // 연속된 blockquote 병합
+        html = html.replace(/<\/blockquote>\s*<blockquote>/g, '<br>');
+        // 순서 있는 목록
+        html = html.replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>');
+        html = html.replace(/((?:<li>.+<\/li>\s*)+)/g, '<ol>$1</ol>');
+        // 순서 없는 목록
+        html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+        // 남은 텍스트를 단락으로
+        html = html.replace(/^(?!<[a-z])(\S.+)$/gm, '<p>$1</p>');
+        // 빈 줄 제거
+        html = html.replace(/\n{2,}/g, '\n');
+        return html;
+    }
+
+    // 이용약관 전문 (인라인)
+    const TERMS_MD = `# 이용약관
+
+**「조르의 과학 실험실 \u2014 용해와 용액 탐구」 이용약관**
+
+최종 수정일: 2026년 6월 27일
+
+---
+
+## 제1조 (목적)
+
+본 약관은 **「조르의 과학 실험실 \u2014 용해와 용액 탐구」** 웹 애플리케이션(이하 “본 서비스”)의 이용에 관한 기본적인 사항을 규정함을 목적으로 합니다.
+
+---
+
+## 제2조 (서비스의 정의)
+
+“본 서비스”란 초등학교 5학년 과학 교과 「용해와 용액」 단원의 학습을 지원하기 위해 제작된 **비영리 교육용 웹 애플리케이션**을 말합니다.
+
+---
+
+## 제3조 (용어의 정의)
+
+1. **“이용자”**: 본 서비스를 이용하는 학생을 말합니다.
+2. **“교사(운영자)”**: 수업 중 본 서비스를 관리\u00b7운영하는 담당 교사를 말합니다.
+3. **“학습 데이터”**: 이용자가 각 스테이지에서 입력한 응답, 선택, 서술 내용을 말합니다.
+4. **“교사용 대시보드”**: 교사가 비밀번호 인증 후 학생들의 학습 데이터를 취합\u00b7열람할 수 있는 관리 화면을 말합니다.
+
+---
+
+## 제4조 (서비스의 이용)
+
+### 1. 이용 대상
+
+본 서비스는 **초등학교 학생**을 주요 대상으로 하며, 수업 중 **교사의 지도하에** 사용하는 것을 원칙으로 합니다.
+
+### 2. 이용 환경
+
+- 본 서비스는 웹 브라우저에서 작동하며, 별도의 프로그램 설치가 필요하지 않습니다.
+- 권장 브라우저: Chrome, Edge, Safari 최신 버전
+
+---
+
+## 제5조 (생성형 AI 윤리 준수)
+
+이용자는 본 서비스를 사용하기 전에 **「생성형 AI 윤리 핵심가이드」**를 읽고 동의해야 합니다.
+
+---
+
+## 제6조 (이용자의 권리와 의무)
+
+### 1. 이용자의 권리
+
+1. 이용자는 자신의 학습 데이터에 대해 **열람, 정정, 삭제**를 요청할 수 있습니다.
+2. 이용자는 서비스 이용을 언제든지 중단할 수 있습니다.
+
+### 2. 이용자의 의무
+
+1. 이용자는 **타인의 이름을 도용**하거나, 허위 정보를 입력하지 않아야 합니다.
+2. 이용자는 **생성형 AI 윤리 핵심가이드**를 성실히 준수해야 합니다.
+3. 이용자는 서비스의 정상적인 운영을 **방해하는 행위**를 하지 않아야 합니다.
+
+---
+
+## 제7조 (교사의 권리와 의무)
+
+1. 교사는 **교사용 대시보드**에 접근하여 학생들의 학습 데이터를 열람\u00b7관리할 수 있습니다.
+2. 교사는 학생의 개인정보를 **적절히 보호**하고, 수업 종료 후 불필요한 데이터를 **적시에 파기**해야 합니다.
+
+---
+
+## 제8조 (지식재산권)
+
+1. 본 서비스의 콘텐츠에 대한 지식재산권은 **제작자(교사)**에게 있습니다.
+2. 이용자가 작성한 응답에 대한 저작권은 **해당 이용자(학생)**에게 있습니다.
+
+---
+
+## 제9조 (면책 조항)
+
+1. 본 서비스는 **“있는 그대로(as-is)”** 제공되며, 학습 효과를 보장하지 않습니다.
+2. 브라우저의 **캐시\u00b7쿠키 삭제**로 인한 로컬 데이터 소실에 대해 운영자는 책임을 지지 않습니다.
+
+---
+
+## 제10조 (약관의 변경)
+
+본 약관은 서비스 개선 등에 따라 수정될 수 있으며, 변경 시 서비스 내 공지를 통해 안내합니다.
+
+---
+
+> 본 이용약관은 2026년 6월 27일부터 시행됩니다.`;
+
+    // 개인정보처리방침 전문 (인라인)
+    const PRIVACY_MD = `# 개인정보처리방침
+
+**「조르의 과학 실험실 \u2014 용해와 용액 탐구」 개인정보처리방침**
+
+최종 수정일: 2026년 6월 27일
+
+---
+
+## 제1조 (목적)
+
+본 개인정보처리방침은 본 서비스가 이용자의 개인정보를 어떻게 수집\u00b7이용\u00b7보관\u00b7파기하는지에 대해 안내하기 위하여 작성되었습니다.
+
+---
+
+## 제2조 (수집하는 개인정보의 항목)
+
+| 구분 | 수집 항목 | 수집 목적 |
+|------|----------|----------|
+| **필수 정보** | 학년, 반, 이름(성명) | 학습자 식별 및 교사의 학습 결과 확인 |
+| **학습 활동 데이터** | 각 스테이지별 응답 내용 | 학습 과정 기록 및 교사 피드백 제공 |
+| **자동 수집 정보** | 제출 시간(타임스탬프) | 응답 시점 기록 |
+
+> 본 서비스는 이메일, 전화번호, 주소, 주민등록번호 등 민감한 개인정보를 수집하지 않습니다.
+
+---
+
+## 제3조 (개인정보의 이용 목적)
+
+1. **학습자 식별**: 학년\u00b7반\u00b7이름을 통해 교사가 학생의 학습 결과를 확인합니다.
+2. **학습 결과 관리**: 교사용 대시보드에서 취합하여 수업 피드백에 활용합니다.
+3. **데이터 내보내기**: 교사가 CSV 형식으로 다운로드하여 학습 평가에 활용할 수 있습니다.
+
+> 수집된 정보는 **교육 활동 이외의 목적**으로 절대 사용되지 않습니다.
+
+---
+
+## 제4조 (저장 방식)
+
+### 1. 로컬 저장 (Local Storage)
+
+- 학습 데이터는 **이용자 기기의 브라우저 로컬 스토리지**에 저장됩니다.
+- 브라우저 캐시\u00b7쿠키를 삭제하면 데이터가 초기화됩니다.
+
+### 2. 외부 전송 (Google Sheets 연동)
+
+- 학습 활동 완료 시, 응답 데이터는 **Google Apps Script**를 통해 **Google Sheets**로 전송될 수 있습니다.
+- Google Sheets에 저장된 데이터는 **교사(운영자)**만 열람할 수 있습니다.
+
+---
+
+## 제5조 (보유 및 파기)
+
+| 저장 위치 | 보유 기간 |
+|----------|----------|
+| 로컬 스토리지 (개인 학습 데이터) | 페이지 새로고침 시 자동 초기화 |
+| 로컬 스토리지 (교사용 전체 기록) | 교사가 수동 초기화할 때까지 |
+| Google Sheets (외부 전송) | 해당 학기 수업 종료 후 교사가 수동 삭제 |
+
+---
+
+## 제6조 (제3자 제공)
+
+본 서비스는 이용자의 개인정보를 **제3자에게 제공하지 않습니다.**
+
+---
+
+## 제7조 (이용자의 권리)
+
+1. 이용자(학생) 및 법정대리인(보호자)은 언제든지 수집된 개인정보에 대해 **열람, 정정, 삭제**를 요청할 수 있습니다.
+2. 교사에게 요청하면 해당 학생의 데이터를 즉시 삭제할 수 있습니다.
+
+---
+
+## 제8조 (안전성 확보 조치)
+
+1. **최소 수집 원칙**: 학습 활동에 필요한 최소한의 정보만 수집합니다.
+2. **접근 통제**: 교사용 대시보드는 **비밀번호 인증**을 통해 접근이 제한됩니다.
+3. **민감정보 비수집**: 주민등록번호, 전화번호, 주소 등은 수집하지 않습니다.
+
+---
+
+## 제9조 (쿠키 및 자동 수집 장치)
+
+본 서비스는 별도의 **쿠키(Cookie)를 사용하지 않습니다.** 학습 데이터의 임시 저장을 위해 브라우저의 로컬 스토리지를 사용합니다.
+
+---
+
+## 제10조 (개인정보 보호책임자)
+
+| 항목 | 내용 |
+|------|------|
+| 담당자 | 수업 담당 교사 |
+| 연락처 | 해당 학교 교무실을 통해 문의 |
+
+---
+
+## 제11조 (방침의 변경)
+
+본 개인정보처리방침은 법령, 정책, 보안 기술의 변경에 따라 수정될 수 있으며, 변경 시 서비스 내 공지를 통해 안내합니다.
+
+---
+
+> 본 개인정보처리방침은 「개인정보 보호법」 및 관련 법령에 근거하여 작성되었으며, 2026년 6월 27일부터 시행됩니다.`;
+
+    // 팝업 열기/닫기 함수
+    function openLegalPopup(type) {
+        const title = type === 'terms' ? '📄 이용약관' : '🔒 개인정보처리방침';
+        const md = type === 'terms' ? TERMS_MD : PRIVACY_MD;
+        els.legalPopupTitle.innerText = title;
+        els.legalPopupBody.innerHTML = mdToHtml(md);
+        els.legalPopupBody.scrollTop = 0;
+        els.legalPopupModal.classList.remove('hidden');
+    }
+
+    function closeLegalPopup() {
+        els.legalPopupModal.classList.add('hidden');
+    }
+
+    /* ==========================================
        이벤트 리스너 등록
     ========================================== */
     // 인트로 확인 버튼
@@ -1651,7 +2427,7 @@
         renderCurrentScene();
     };
 
-    // 정보 입력 및 시작
+    // 정보 입력 및 시작 → 윤리 게이트로 이동
     els.startBtn.onclick = () => {
         const grade = els.inputGrade.value;
         const cls = els.inputClass.value;
@@ -1672,7 +2448,44 @@
         state.studentName = name;
         els.studentNameDisplay.innerText = `${name} (${grade}학년 ${cls}반)`;
         
+        // 시작 모달 숨기고 → 윤리 게이트 표시
         els.startModal.classList.add('hidden');
+        els.ethicsGate.classList.remove('hidden');
+
+        // 체크박스/버튼 초기화
+        els.ethicsCheckbox.checked = false;
+        els.ethicsCheckLabel.classList.remove('checked');
+        els.ethicsStartBtn.disabled = true;
+        els.ethicsStartBtn.classList.remove('active');
+        els.ethicsScrollHint.style.display = '';
+        els.ethicsScrollBox.scrollTop = 0;
+    };
+
+    // 윤리 게이트: 스크롤 감지 → 끝까지 읽으면 힌트 숨김
+    els.ethicsScrollBox.onscroll = () => {
+        const box = els.ethicsScrollBox;
+        if (box.scrollTop + box.clientHeight >= box.scrollHeight - 30) {
+            els.ethicsScrollHint.style.display = 'none';
+        }
+    };
+
+    // 윤리 게이트: 체크박스 토글
+    els.ethicsCheckbox.onchange = () => {
+        if (els.ethicsCheckbox.checked) {
+            els.ethicsCheckLabel.classList.add('checked');
+            els.ethicsStartBtn.disabled = false;
+            els.ethicsStartBtn.classList.add('active');
+        } else {
+            els.ethicsCheckLabel.classList.remove('checked');
+            els.ethicsStartBtn.disabled = true;
+            els.ethicsStartBtn.classList.remove('active');
+        }
+    };
+
+    // 윤리 게이트: 시작하기 버튼 → 인트로 화면으로
+    els.ethicsStartBtn.onclick = () => {
+        if (els.ethicsStartBtn.disabled) return;
+        els.ethicsGate.classList.add('hidden');
         els.introScreen.classList.remove('hidden');
         
         // 인트로 타이핑 시작
@@ -1750,6 +2563,17 @@
     // 대시보드 액션 이벤트 바인딩
     els.downloadCsvBtn.onclick = downloadCsv;
     els.resetAllBtn.onclick = resetAllRecords;
+
+    // 법적 팝업 이벤트 리스너
+    document.getElementById('footer-terms-link').onclick = () => openLegalPopup('terms');
+    document.getElementById('footer-privacy-link').onclick = () => openLegalPopup('privacy');
+    document.getElementById('gate-terms-link').onclick = () => openLegalPopup('terms');
+    document.getElementById('gate-privacy-link').onclick = () => openLegalPopup('privacy');
+    els.legalPopupCloseBtn.onclick = closeLegalPopup;
+    els.legalPopupConfirmBtn.onclick = closeLegalPopup;
+    els.legalPopupModal.onclick = (e) => {
+        if (e.target === els.legalPopupModal) closeLegalPopup();
+    };
 
     // 초기화 및 시작 모달 표시
     window.onload = () => {
